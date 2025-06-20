@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Plant Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .sidebar {
+      transition: all 0.3s;
+    }
+    .sidebar.collapsed {
+      width: 70px;
+    }
+    .sidebar.collapsed .nav-text {
+      display: none;
+    }
+    .sidebar.collapsed .logo-text {
+      display: none;
+    }
+    .main-content {
+      transition: all 0.3s;
+    }
+    .main-content.expanded {
+      margin-left: 70px;
+    }
+    .plant-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .gauge {
+      position: relative;
+      width: 100%;
+      height: 120px;
+      margin: 0 auto;
+    }
+    .gauge-body {
+      width: 100%;
+      height: 0;
+      padding-bottom: 50%;
+      position: relative;
+      border-top-left-radius: 100% 200%;
+      border-top-right-radius: 100% 200%;
+      overflow: hidden;
+      background: #f5f5f5;
+    }
+    .gauge-fill {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transform-origin: center top;
+      transform: rotate(0.5turn);
+      transition: transform 0.5s ease-out;
+    }
+    .gauge-cover {
+      width: 75%;
+      height: 150%;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 25%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5em;
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1) inset;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans">
+<div class="flex h-screen overflow-hidden">
+  <!-- Sidebar -->
+  <div id="sidebar" class="sidebar bg-green-800 text-white w-64 flex-shrink-0 flex flex-col">
+    <div class="flex items-center justify-between p-4 border-b border-green-700">
+      <div class="flex items-center">
+        <i class="fas fa-leaf text-2xl mr-3"></i>
+        <span class="logo-text text-xl font-bold">SmartPlant</span>
+      </div>
+      <button id="toggleSidebar" class="text-white focus:outline-none">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+    <nav class="flex-grow p-4">
+      <ul class="space-y-2">
+        <li>
+          <a href="#" class="flex items-center p-2 rounded hover:bg-green-700 active-nav">
+            <i class="fas fa-tachometer-alt mr-3"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center p-2 rounded hover:bg-green-700">
+            <i class="fas fa-seedling mr-3"></i>
+            <span class="nav-text">Plants</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center p-2 rounded hover:bg-green-700">
+            <i class="fas fa-chart-line mr-3"></i>
+            <span class="nav-text">Sensors</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center p-2 rounded hover:bg-green-700">
+            <i class="fas fa-clock mr-3"></i>
+            <span class="nav-text">Schedules</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center p-2 rounded hover:bg-green-700">
+            <i class="fas fa-clipboard-list mr-3"></i>
+            <span class="nav-text">Logs</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center p-2 rounded hover:bg-green-700">
+            <i class="fas fa-users mr-3"></i>
+            <span class="nav-text">Users</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="p-4 border-t border-green-700">
+      <div class="flex items-center">
+        <img src="https://via.placeholder.com/40" alt="User" class="rounded-full mr-3">
+        <div class="nav-text">
+          <div class="font-medium">Admin User</div>
+          <div class="text-sm text-green-200">admin@smartplant.com</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent" class="main-content flex-grow flex flex-col overflow-auto">
+    <!-- Header -->
+    <header class="bg-white shadow-sm p-4 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
+      <div class="flex items-center space-x-4">
+        <div class="relative">
+          <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+          <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+        </div>
+        <button class="text-gray-600 hover:text-gray-900">
+          <i class="fas fa-bell text-xl"></i>
+        </button>
+        <button class="text-gray-600 hover:text-gray-900">
+          <i class="fas fa-cog text-xl"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <main class="flex-grow p-6">
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+          <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+            <i class="fas fa-seedling text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-500">Total Plants</p>
+            <h3 class="text-2xl font-bold">12</h3>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+          <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+            <i class="fas fa-microchip text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-500">Active Sensors</p>
+            <h3 class="text-2xl font-bold">8</h3>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+          <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
+            <i class="fas fa-clock text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-500">Scheduled Tasks</p>
+            <h3 class="text-2xl font-bold">5</h3>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+          <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4">
+            <i class="fas fa-exclamation-triangle text-2xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-500">Alerts</p>
+            <h3 class="text-2xl font-bold">2</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plant Status and Charts -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Plant Status -->
+        <div class="bg-white rounded-lg shadow p-6 lg:col-span-1">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Plant Status</h2>
+            <button class="text-green-600 hover:text-green-800">
+              <i class="fas fa-plus"></i> Add Plant
+            </button>
+          </div>
+          <div class="space-y-4">
+            <div class="plant-card bg-white border border-gray-200 rounded-lg p-4 transition-all duration-300 cursor-pointer hover:shadow-md">
+              <div class="flex items-center">
+                <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                  <i class="fas fa-leaf text-green-600 text-xl"></i>
+                </div>
+                <div>
+                  <h4 class="font-medium">Monstera Deliciosa</h4>
+                  <p class="text-sm text-gray-500">Needs watering</p>
+                </div>
+              </div>
+            </div>
+            <div class="plant-card bg-white border border-gray-200 rounded-lg p-4 transition-all duration-300 cursor-pointer hover:shadow-md">
+              <div class="flex items-center">
+                <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mr-4">
+                  <i class="fas fa-leaf text-yellow-600 text-xl"></i>
+                </div>
+                <div>
+                  <h4 class="font-medium">Snake Plant</h4>
+                  <p class="text-sm text-gray-500">Low humidity</p>
+                </div>
+              </div>
+            </div>
+            <div class="plant-card bg-white border border-gray-200 rounded-lg p-4 transition-all duration-300 cursor-pointer hover:shadow-md">
+              <div class="flex items-center">
+                <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                  <i class="fas fa-leaf text-green-600 text-xl"></i>
+                </div>
+                <div>
+                  <h4 class="font-medium">Peace Lily</h4>
+                  <p class="text-sm text-gray-500">Optimal conditions</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sensor Data Charts -->
+        <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Sensor Data</h2>
+            <div class="flex space-x-2">
+              <button class="px-3 py-1 bg-green-100 text-green-700 rounded-md text-sm">Day</button>
+              <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-sm">Week</button>
+              <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-sm">Month</button>
+            </div>
+          </div>
+          <canvas id="sensorChart" height="250"></canvas>
+        </div>
+      </div>
+
+      <!-- Sensor Gauges -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-semibold mb-4">Soil Moisture</h3>
+          <div class="gauge">
+            <div class="gauge-body">
+              <div class="gauge-fill" style="background: linear-gradient(to right, #ef4444, #f59e0b, #10b981); transform: rotate(0.3turn);"></div>
+              <div class="gauge-cover">65%</div>
+            </div>
+          </div>
+          <div class="mt-4 text-center">
+            <p class="text-sm text-gray-500">Optimal: 60-70%</p>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-semibold mb-4">Temperature</h3>
+          <div class="gauge">
+            <div class="gauge-body">
+              <div class="gauge-fill" style="background: linear-gradient(to right, #3b82f6, #ef4444); transform: rotate(0.6turn);"></div>
+              <div class="gauge-cover">22°C</div>
+            </div>
+          </div>
+          <div class="mt-4 text-center">
+            <p class="text-sm text-gray-500">Optimal: 18-24°C</p>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-semibold mb-4">Humidity</h3>
+          <div class="gauge">
+            <div class="gauge-body">
+              <div class="gauge-fill" style="background: linear-gradient(to right, #3b82f6, #8b5cf6); transform: rotate(0.4turn);"></div>
+              <div class="gauge-cover">45%</div>
+            </div>
+          </div>
+          <div class="mt-4 text-center">
+            <p class="text-sm text-gray-500">Optimal: 40-60%</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activities and Watering Schedule -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Recent Activities -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-lg font-semibold mb-4">Recent Activities</h2>
+          <div class="space-y-4">
+            <div class="flex items-start">
+              <div class="p-2 rounded-full bg-blue-100 text-blue-600 mr-3">
+                <i class="fas fa-tint"></i>
+              </div>
+              <div>
+                <p class="font-medium">Watering completed</p>
+                <p class="text-sm text-gray-500">Monstera Deliciosa was watered at 10:30 AM</p>
+                <p class="text-xs text-gray-400">2 hours ago</p>
+              </div>
+            </div>
+            <div class="flex items-start">
+              <div class="p-2 rounded-full bg-yellow-100 text-yellow-600 mr-3">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+              <div>
+                <p class="font-medium">Low humidity alert</p>
+                <p class="text-sm text-gray-500">Snake Plant humidity dropped below 35%</p>
+                <p class="text-xs text-gray-400">4 hours ago</p>
+              </div>
+            </div>
+            <div class="flex items-start">
+              <div class="p-2 rounded-full bg-green-100 text-green-600 mr-3">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div>
+                <p class="font-medium">New plant added</p>
+                <p class="text-sm text-gray-500">Peace Lily was added to your collection</p>
+                <p class="text-xs text-gray-400">Yesterday</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Watering Schedule -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Watering Schedule</h2>
+            <button class="text-green-600 hover:text-green-800">
+              <i class="fas fa-plus"></i> Add Schedule
+            </button>
+          </div>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+              <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                  <i class="fas fa-tint text-blue-600"></i>
+                </div>
+                <div>
+                  <p class="font-medium">Monstera Deliciosa</p>
+                  <p class="text-sm text-gray-500">Every 3 days</p>
+                </div>
+              </div>
+              <span class="text-blue-600 font-medium">Tomorrow 9:00 AM</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+              <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                  <i class="fas fa-tint text-green-600"></i>
+                </div>
+                <div>
+                  <p class="font-medium">Peace Lily</p>
+                  <p class="text-sm text-gray-500">Every 5 days</p>
+                </div>
+              </div>
+              <span class="text-green-600 font-medium">In 2 days</span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+              <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+                  <i class="fas fa-tint text-yellow-600"></i>
+                </div>
+                <div>
+                  <p class="font-medium">Snake Plant</p>
+                  <p class="text-sm text-gray-500">Every 7 days</p>
+                </div>
+              </div>
+              <span class="text-yellow-600 font-medium">In 3 days</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  // Toggle sidebar
+  document.getElementById('toggleSidebar').addEventListener('click', function() {
+    document.getElementById('sidebar').classList.toggle('collapsed');
+    document.getElementById('mainContent').classList.toggle('expanded');
+  });
+
+  // Initialize sensor chart
+  const ctx = document.getElementById('sensorChart').getContext('2d');
+  const sensorChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['6AM', '9AM', '12PM', '3PM', '6PM', '9PM', '12AM'],
+      datasets: [
+        {
+          label: 'Soil Moisture (%)',
+          data: [55, 60, 58, 62, 65, 63, 60],
+          borderColor: '#10B981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          tension: 0.3,
+          fill: true
+        },
+        {
+          label: 'Temperature (°C)',
+          data: [20, 22, 24, 23, 22, 21, 20],
+          borderColor: '#3B82F6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          tension: 0.3,
+          fill: true
+        },
+        {
+          label: 'Humidity (%)',
+          data: [40, 42, 45, 47, 45, 43, 40],
+          borderColor: '#8B5CF6',
+          backgroundColor: 'rgba(139, 92, 246, 0.1)',
+          tension: 0.3,
+          fill: true
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: false
+        }
+      }
+    }
+  });
+
+  // Update gauge values randomly for demo purposes
+  function updateGauges() {
+    const moisture = Math.floor(Math.random() * 30) + 40;
+    const temp = Math.floor(Math.random() * 10) + 18;
+    const humidity = Math.floor(Math.random() * 30) + 30;
+
+    document.querySelectorAll('.gauge-fill')[0].style.transform = `rotate(${(moisture / 100) * 0.5}turn)`;
+    document.querySelectorAll('.gauge-cover')[0].textContent = `${moisture}%`;
+
+    document.querySelectorAll('.gauge-fill')[1].style.transform = `rotate(${(temp / 40) * 0.5}turn)`;
+    document.querySelectorAll('.gauge-cover')[1].textContent = `${temp}°C`;
+
+    document.querySelectorAll('.gauge-fill')[2].style.transform = `rotate(${(humidity / 100) * 0.5}turn)`;
+    document.querySelectorAll('.gauge-cover')[2].textContent = `${humidity}%`;
+
+    setTimeout(updateGauges, 3000);
+  }
+
+  // Start gauge updates
+  updateGauges();
+</script>
+</body>
+</html>

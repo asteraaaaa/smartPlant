@@ -1,0 +1,35 @@
+package com.csc3700.smartplant.controller;
+
+import com.csc3700.smartplant.model.Plant;
+import com.csc3700.smartplant.model.User;
+import com.csc3700.smartplant.service.PlantService;
+import com.csc3700.smartplant.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/plants")
+public class PlantController {
+    @Autowired
+    private PlantService service;
+
+    @GetMapping
+    public List<Plant> all() {
+        return service.getAll();
+    }
+
+    @GetMapping("/{id}") public Plant one(@PathVariable Long id) {
+        return service.getById(id);
+    }
+
+    @PostMapping
+    public Plant save(@RequestBody Plant plant) {
+        return service.save(plant);
+    }
+
+    @DeleteMapping("/{id}") public void delete(@PathVariable Long id) {
+        service.delete(id);
+    }
+}
