@@ -4,7 +4,8 @@
 
             <li class="nav-item">
                 <a class="nav-link"
-                   th:href="@{/}">
+                   th:href="@{/}"
+                   th:classappend="${activePage == 'dashboard'} ? ' active' : ''">
                     <i class="fas fa-tachometer-alt mr-3"></i>
                     <span class="nav-link-text">Dashboard</span>
                 </a>
@@ -12,7 +13,8 @@
 
             <li class="nav-item">
                 <a class="nav-link"
-                   th:href="@{/plant}">
+                   th:href="@{/plant}"
+                   th:classappend="${activePage == 'plant'} ? ' active' : ''">
                     <i class="fas fa-seedling mr-3"></i>
                     <span class="nav-link-text">Plant Profiles</span>
                 </a>
@@ -20,7 +22,8 @@
 
             <li class="nav-item">
                 <a class="nav-link"
-                   th:href="@{/sensor}">
+                   th:href="@{/sensor}"
+                   th:classappend="${activePage == 'sensor'} ? ' active' : ''">
                     <i class="bi bi-bar-chart-fill mr-3"></i>
                     <span class="nav-link-text">Sensor Data</span>
                 </a>
@@ -28,7 +31,8 @@
 
             <li class="nav-item">
                 <a class="nav-link"
-                   th:href="@{/schedule}">
+                   th:href="@{/schedule}"
+                   th:classappend="${activePage == 'schedule'} ? ' active' : ''">
                     <i class="bi bi-calendar-check-fill mr-3"></i>
                     <span class="nav-link-text">Watering Schedule</span>
                 </a>
@@ -36,7 +40,8 @@
 
             <li class="nav-item">
                 <a class="nav-link"
-                   th:href="@{/settings}">
+                   th:href="@{/settings}"
+                   th:classappend="${activePage == 'settings'} ? ' active' : ''">
                     <i class="bi bi-gear-fill mr-3"></i>
                     <span class="nav-link-text">Settings</span>
                 </a>
@@ -44,7 +49,8 @@
 
             <li class="nav-item">
                 <a class="nav-link"
-                   th:href="@{/logs}">
+                   th:href="@{/Systemlogs}"
+                   th:classappend="${activePage == 'Systemlogs'} ? ' active' : ''">
                     <i class="bi bi-clock-fill mr-3"></i>
                     <span class="nav-link-text">System Logs</span>
                 </a>

@@ -19,12 +19,14 @@
 <body>
 
 <!-- Header -->
-<div th:replace="fragment/header :: header"></div>
+<div th:replace="~{fragment/header :: header}"></div>
+
+
 
 <!-- Sidebar + Main Content -->
 <div class="content-wrapper d-flex">
     <!-- Sidebar -->
-    <div th:replace="fragment/sidebar :: sidebar"></div>
+    <div th:replace="~{fragment/sidebar :: sidebar}"></div>
 
     <!-- Page Content -->
     <main class="flex-grow-1 p-4" layout:fragment="content">
