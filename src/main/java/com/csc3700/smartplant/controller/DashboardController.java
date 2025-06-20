@@ -7,15 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class DashboardController {
 
     // Show dashboard page
-    @GetMapping("/dashboard")
-    public String showDashboard() {
-        return "dashboard"; // Will look for templates/dashboard.html
-    }
-
-    // Redirect root URL to dashboard
     @GetMapping("/")
-    public String homeRedirect() {
-        return "redirect:/dashboard";
+    public String showDashboard() {
+        return "main/template"; // Will look for templates/dashboard.html
     }
 }
 
