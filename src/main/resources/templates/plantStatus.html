@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Profiles - Smart Plant System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .plant-card {
+            transition: all 0.3s ease;
+        }
+        .plant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .moisture-indicator {
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #ff6b6b 0%, #feca57 50%, #54a0ff 100%);
+        }
+        .moisture-level {
+            height: 100%;
+            border-radius: 4px;
+            background-color: #38b2ac;
+            transition: width 0.5s ease;
+        }
+        .sidebar {
+            background-color: #2d3748;
+            transition: all 0.3s ease;
+        }
+        .sidebar-link {
+            transition: all 0.2s ease;
+        }
+        .sidebar-link:hover {
+            background-color: #4a5568;
+        }
+        .sidebar-link.active {
+            background-color: #38b2ac;
+            color: white;
+        }
+        .status-badge {
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-optimal {
+            background-color: #c6f6d5;
+            color: #22543d;
+        }
+        .status-warning {
+            background-color: #feebc8;
+            color: #7b341e;
+        }
+        .status-critical {
+            background-color: #fed7d7;
+            color: #822727;
+        }
+        .plant-icon {
+            width: 40px;
+            height: 40px;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .accordion-content.active {
+            max-height: 500px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div class="flex h-screen bg-gray-50">
+    <!-- Sidebar -->
+    <div class="sidebar w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 z-10">
+        <div class="flex items-center justify-center">
+            <div class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                <span class="text-white text-2xl font-semibold">PlantSmart</span>
+            </div>
+        </div>
+        <nav>
+            <a href="#" class="sidebar-link text-gray-300 flex items-center space-x-3 px-4 py-3 rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <span>Plant Profiles</span>
+            </a>
+            <a href="#" class="sidebar-link text-gray-300 flex items-center space-x-3 px-4 py-3 rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <span>Sensor Data</span>
+            </a>
+            <a href="#" class="sidebar-link text-gray-300 flex items-center space-x-3 px-4 py-3 rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Watering Schedule</span>
+            </a>
+            <a href="#" class="sidebar-link text-gray-300 flex items-center space-x-3 px-4 py-3 rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+                <span>Settings</span>
+            </a>
+            <a href="#" class="sidebar-link text-gray-300 flex items-center space-x-3 px-4 py-3 rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>System Logs</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 overflow-auto">
+        <header class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                <h1 class="text-2xl font-semibold text-gray-900">Plant Profiles</h1>
+                <div class="flex items-center space-x-4">
+                    <button class="bg-gray-200 p-2 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <div class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold">J</div>
+                        <span class="font-medium">John Doe</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <!-- Action Bar -->
+            <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
+                <div class="flex items-center space-x-2">
+                    <div class="relative">
+                        <input type="text" placeholder="Search plants..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <div class="absolute left-3 top-2.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <select class="pl-4 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none">
+                            <option value="">All Types</option>
+                            <option value="tropical">Tropical</option>
+                            <option value="succulent">Succulent</option>
+                            <option value="herb">Herb</option>
+                            <option value="indoor">Indoor</option>
+                        </select>
+                        <div class="absolute right-3 top-3 pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    <span>Add New Plant</span>
+                </button>
+            </div>
+
+            <!-- View Toggle -->
+            <div class="mb-6 flex space-x-2 border-b border-gray-200">
+                <button class="view-toggle px-4 py-2 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600" data-view="grid">
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                        </svg>
+                        <span>Grid View</span>
+                    </div>
+                </button>
+                <button class="view-toggle px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700" data-view="list">
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                        </svg>
+                        <span>List View</span>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Grid View -->
+            <div id="grid-view" class="view-content active">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Plant Card 1 -->
+                    <div class="plant-card bg-white overflow-hidden shadow rounded-lg">
+                        <div class="px-4 pt-5 pb-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <svg class="plant-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 2L12 9M12 9C10.4097 9 8.88278 9.63214 7.75736 10.7574C6.63214 11.8826 6 13.4087 6 15C6 16.5913 6.63214 18.1174 7.75736 19.2426C8.88278 20.3679 10.4097 21 12 21C13.5903 21 15.1172 20.3679 16.2426 19.2426C17.3679 18.1174 18 16.5913 18 15C18 13.4087 17.3679 11.8826 16.2426 10.7574C15.1172 9.63214 13.5903 9 12 9Z" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 9C12 7.4087 11.3679 5.88258 10.2426 4.75736C9.11742 3.63214 7.5913 3 6 3" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 9C12 7.4087 12.6321 5.88258 13.7574 4.75736C14.8826 3.63214 16.4087 3 18 3" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-medium text-gray-900">Monstera Deliciosa</h3>
+                                        <p class="text-sm text-gray-500">Tropical Plant</p>
+                                    </div>
+                                </div>
+                                <span class="status-badge status-optimal">Healthy</span>
+                            </div>
+                            <div class="mt-6 space-y-4">
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Moisture</div>
+                                        <div class="text-sm font-semibold">60-70%</div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Temperature</div>
+                                        <div class="text-sm font-semibold">18-27°C</div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Humidity</div>
+                                        <div class="text-sm font-semibold">50-60%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-header px-4 py-3 bg-gray-50 flex justify-between items-center cursor-pointer">
+                            <span class="text-sm font-medium text-indigo-600">View Sensor History</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="accordion-icon h-5 w-5 text-indigo-600 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                        <div class="accordion-content px-4 py-3 bg-gray-50 border-t border-gray-100">
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Today, 10:30 AM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 65%</span>
+                                        <span class="text-gray-800">Temp: 24°C</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Today, 06:30 AM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 68%</span>
+                                        <span class="text-gray-800">Temp: 22°C</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Yesterday, 10:30 PM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 70%</span>
+                                        <span class="text-gray-800">Temp: 21°C</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 bg-white border-t border-gray-200 flex justify-between">
+                            <button class="text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                                Edit
+                            </button>
+                            <button class="text-sm font-medium text-red-600 hover:text-red-500 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Plant Card 2 -->
+                    <div class="plant-card bg-white overflow-hidden shadow rounded-lg">
+                        <div class="px-4 pt-5 pb-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <svg class="plant-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 8C12 8 12 3 8 3C4 3 4 6 4 6C4 6 4 9 7 10" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 8C12 8 12 3 16 3C20 3 20 6 20 6C20 6 20 9 17 10" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 16C12 16 12 11 8 11C4 11 4 14 4 14C4 14 4 17 7 18" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 16C12 16 12 11 16 11C20 11 20 14 20 14C20 14 20 17 17 18" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 21V8" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-medium text-gray-900">Fiddle Leaf Fig</h3>
+                                        <p class="text-sm text-gray-500">Indoor Tree</p>
+                                    </div>
+                                </div>
+                                <span class="status-badge status-warning">Needs Water</span>
+                            </div>
+                            <div class="mt-6 space-y-4">
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Moisture</div>
+                                        <div class="text-sm font-semibold">40-60%</div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Temperature</div>
+                                        <div class="text-sm font-semibold">18-24°C</div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Humidity</div>
+                                        <div class="text-sm font-semibold">40-50%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-header px-4 py-3 bg-gray-50 flex justify-between items-center cursor-pointer">
+                            <span class="text-sm font-medium text-indigo-600">View Sensor History</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="accordion-icon h-5 w-5 text-indigo-600 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                        <div class="accordion-content px-4 py-3 bg-gray-50 border-t border-gray-100">
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Today, 10:30 AM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 28%</span>
+                                        <span class="text-gray-800">Temp: 22°C</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Today, 06:30 AM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 30%</span>
+                                        <span class="text-gray-800">Temp: 21°C</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Yesterday, 10:30 PM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 35%</span>
+                                        <span class="text-gray-800">Temp: 20°C</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 bg-white border-t border-gray-200 flex justify-between">
+                            <button class="text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                                Edit
+                            </button>
+                            <button class="text-sm font-medium text-red-600 hover:text-red-500 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Plant Card 3 -->
+                    <div class="plant-card bg-white overflow-hidden shadow rounded-lg">
+                        <div class="px-4 pt-5 pb-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <svg class="plant-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 2V22" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 16L16 12L12 8" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 16L8 12L12 8" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-medium text-gray-900">Snake Plant</h3>
+                                        <p class="text-sm text-gray-500">Succulent</p>
+                                    </div>
+                                </div>
+                                <span class="status-badge status-optimal">Healthy</span>
+                            </div>
+                            <div class="mt-6 space-y-4">
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Moisture</div>
+                                        <div class="text-sm font-semibold">30-50%</div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Temperature</div>
+                                        <div class="text-sm font-semibold">18-27°C</div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Humidity</div>
+                                        <div class="text-sm font-semibold">30-50%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-header px-4 py-3 bg-gray-50 flex justify-between items-center cursor-pointer">
+                            <span class="text-sm font-medium text-indigo-600">View Sensor History</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="accordion-icon h-5 w-5 text-indigo-600 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                        <div class="accordion-content px-4 py-3 bg-gray-50 border-t border-gray-100">
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Today, 10:30 AM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 42%</span>
+                                        <span class="text-gray-800">Temp: 23°C</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Today, 06:30 AM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 45%</span>
+                                        <span class="text-gray-800">Temp: 22°C</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Yesterday, 10:30 PM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 48%</span>
+                                        <span class="text-gray-800">Temp: 21°C</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 bg-white border-t border-gray-200 flex justify-between">
+                            <button class="text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                                Edit
+                            </button>
+                            <button class="text-sm font-medium text-red-600 hover:text-red-500 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Plant Card 4 -->
+                    <div class="plant-card bg-white overflow-hidden shadow rounded-lg">
+                        <div class="px-4 pt-5 pb-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <svg class="plant-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 8V16" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M8 12H16" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-medium text-gray-900">Basil</h3>
+                                        <p class="text-sm text-gray-500">Herb</p>
+                                    </div>
+                                </div>
+                                <span class="status-badge status-critical">Critical</span>
+                            </div>
+                            <div class="mt-6 space-y-4">
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Moisture</div>
+                                        <div class="text-sm font-semibold">50-70%</div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Temperature</div>
+                                        <div class="text-sm font-semibold">18-24°C</div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Humidity</div>
+                                        <div class="text-sm font-semibold">40-60%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-header px-4 py-3 bg-gray-50 flex justify-between items-center cursor-pointer">
+                            <span class="text-sm font-medium text-indigo-600">View Sensor History</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="accordion-icon h-5 w-5 text-indigo-600 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                        <div class="accordion-content px-4 py-3 bg-gray-50 border-t border-gray-100">
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Today, 10:30 AM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 20%</span>
+                                        <span class="text-gray-800">Temp: 26°C</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Today, 06:30 AM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 25%</span>
+                                        <span class="text-gray-800">Temp: 24°C</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Yesterday, 10:30 PM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 30%</span>
+                                        <span class="text-gray-800">Temp: 22°C</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 bg-white border-t border-gray-200 flex justify-between">
+                            <button class="text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                                Edit
+                            </button>
+                            <button class="text-sm font-medium text-red-600 hover:text-red-500 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Plant Card 5 -->
+                    <div class="plant-card bg-white overflow-hidden shadow rounded-lg">
+                        <div class="px-4 pt-5 pb-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <svg class="plant-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 6V12L16 14" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-medium text-gray-900">Aloe Vera</h3>
+                                        <p class="text-sm text-gray-500">Succulent</p>
+                                    </div>
+                                </div>
+                                <span class="status-badge status-optimal">Healthy</span>
+                            </div>
+                            <div class="mt-6 space-y-4">
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Moisture</div>
+                                        <div class="text-sm font-semibold">20-40%</div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Temperature</div>
+                                        <div class="text-sm font-semibold">18-24°C</div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Humidity</div>
+                                        <div class="text-sm font-semibold">30-50%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-header px-4 py-3 bg-gray-50 flex justify-between items-center cursor-pointer">
+                            <span class="text-sm font-medium text-indigo-600">View Sensor History</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="accordion-icon h-5 w-5 text-indigo-600 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                        <div class="accordion-content px-4 py-3 bg-gray-50 border-t border-gray-100">
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Today, 10:30 AM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 35%</span>
+                                        <span class="text-gray-800">Temp: 23°C</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Today, 06:30 AM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 38%</span>
+                                        <span class="text-gray-800">Temp: 22°C</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Yesterday, 10:30 PM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 40%</span>
+                                        <span class="text-gray-800">Temp: 21°C</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 bg-white border-t border-gray-200 flex justify-between">
+                            <button class="text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                                Edit
+                            </button>
+                            <button class="text-sm font-medium text-red-600 hover:text-red-500 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Plant Card 6 -->
+                    <div class="plant-card bg-white overflow-hidden shadow rounded-lg">
+                        <div class="px-4 pt-5 pb-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <svg class="plant-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 2V4" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 20V22" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M4.93 4.93L6.34 6.34" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M17.66 17.66L19.07 19.07" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M2 12H4" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M20 12H22" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M4.93 19.07L6.34 17.66" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M17.66 6.34L19.07 4.93" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-medium text-gray-900">Peace Lily</h3>
+                                        <p class="text-sm text-gray-500">Flowering Plant</p>
+                                    </div>
+                                </div>
+                                <span class="status-badge status-warning">Needs Water</span>
+                            </div>
+                            <div class="mt-6 space-y-4">
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Moisture</div>
+                                        <div class="text-sm font-semibold">50-70%</div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Temperature</div>
+                                        <div class="text-sm font-semibold">18-24°C</div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Humidity</div>
+                                        <div class="text-sm font-semibold">50-70%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-header px-4 py-3 bg-gray-50 flex justify-between items-center cursor-pointer">
+                            <span class="text-sm font-medium text-indigo-600">View Sensor History</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="accordion-icon h-5 w-5 text-indigo-600 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                        <div class="accordion-content px-4 py-3 bg-gray-50 border-t border-gray-100">
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Today, 10:30 AM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 35%</span>
+                                        <span class="text-gray-800">Temp: 22°C</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Today, 06:30 AM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 38%</span>
+                                        <span class="text-gray-800">Temp: 21°C</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Yesterday, 10:30 PM</span>
+                                    <div class="flex space-x-4">
+                                        <span class="text-gray-800">Moisture: 42%</span>
+                                        <span class="text-gray-800">Temp: 20°C</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 bg-white border-t border-gray-200 flex justify-between">
+                            <button class="text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                                Edit
+                            </button>
+                            <button class="text-sm font-medium text-red-600 hover:text-red-500 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- List View -->
+            <div id="list-view" class="view-content hidden">
+                <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                    <ul class="divide-y divide-gray-200">
+                        <!-- Plant List Item 1 -->
+                        <li>
+                            <div class="px-4 py-4 sm:px-6">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <svg class="h-10 w-10 text-green-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M12 2L12 9M12 9C10.4097 9 8.88278 9.63214 7.75736 10.7574C6.63214 11.8826 6 13.4087 6 15C6 16.5913 6.63214 18.1174 7.75736 19.2426C8.88278 20.3679 10.4097 21 12 21C13.5903 21 15.1172 20.3679 16.2426 19.2426C17.3679 18.1174 18 16.5913 18 15C18 13.4087 17.3679 11.8826 16.2426 10.7574C15.1172 9.63214 13.5903 9 12 9Z" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M12 9C12 7.4087 11.3679 5.88258 10.2426 4.75736C9.11742 3.63214 7.5913 3 6 3" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M12 9C12 7.4087 12.6321 5.88258 13.7574 4.75736C14.8826 3.63214 16.4087 3 18 3" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-indigo-600 truncate">Monstera Deliciosa</div>
+                                            <div class="text-sm text-gray-500">Tropical Plant</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <span class="status-badge status-optimal">Healthy</span>
+                                        <div class="flex space-x-2">
+                                            <button class="text-indigo-600 hover:text-indigo-900">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            </button>
+                                            <button class="text-indigo-600 hover:text-indigo-900">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-900">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2 sm:flex sm:justify-between">
+                                    <div class="sm:flex">
+                                        <div class="flex items-center text-sm text-gray-500 mr-6">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                            </svg>
+                                            <span>Moisture: 60-70%</span>
+                                        </div>
+                                        <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 mr-6">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                                            </svg>
+                                            <span>Humidity: 50-60%</span>
+                                        </div>
+                                        <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                            </svg>
+                                            <span>Temperature: 18-27°C</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <span>Last watered: 2 days ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- Plant List Item 2 -->
+                        <li>
+                            <div class="px-4 py-4 sm:px-6">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <svg class="h-10 w-10 text-green-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M12 8C12 8 12 3 8 3C4 3 4 6 4 6C4 6 4 9 7 10" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M12 8C12 8 12 3 16 3C20 3 20 6 20 6C20 6 20 9 17 10" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M12 16C12 16 12 11 8 11C4 11 4 14 4 14C4 14 4 17 7 18" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M12 16C12 16 12 11 16 11C20 11 20 14 20 14C20 14 20 17 17 18" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M12 21V8" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-indigo-600 truncate">Fiddle Leaf Fig</div>
+                                            <div class="text-sm text-gray-500">Indoor Tree</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <span class="status-badge status-warning">Needs Water</span>
+                                        <div class="flex space-x-2">
+                                            <button class="text-indigo-600 hover:text-indigo-900">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            </button>
+                                            <button class="text-indigo-`
