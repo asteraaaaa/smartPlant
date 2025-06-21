@@ -4,7 +4,7 @@
       layout:decorate="~{layout}">
 
 <head>
-    <title>Patient</title>
+    <title>Dashboard</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
     <!-- Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,6 +16,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .plant-card {
+            transition: all 0.3s ease;
+        }
+        .plant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
         .sidebar {
             transition: all 0.3s;
         }
@@ -34,66 +50,6 @@
         .main-content.expanded {
             margin-left: 70px;
         }
-        .plant-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        .gauge {
-            position: relative;
-            width: 100%;
-            height: 120px;
-            margin: 0 auto;
-        }
-        .gauge-body {
-            width: 100%;
-            height: 0;
-            padding-bottom: 50%;
-            position: relative;
-            border-top-left-radius: 100% 200%;
-            border-top-right-radius: 100% 200%;
-            overflow: hidden;
-            background: #f5f5f5;
-        }
-        .gauge-fill {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transform-origin: center top;
-            transform: rotate(0.5turn);
-            transition: transform 0.5s ease-out;
-        }
-        .gauge-cover {
-            width: 75%;
-            height: 150%;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 25%;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5em;
-            font-weight: bold;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1) inset;
-
-            .moisture-indicator {
-                height: 0.5rem;
-                background-color: #e5e7eb; /* Tailwind bg-gray-200 */
-                border-radius: 9999px;
-                overflow: hidden;
-            }
-
-            .moisture-level {
-                height: 100%;
-                width: 100%;
-                border-radius: 9999px;
-            }
-
-        }
     </style>
 </head>
 
@@ -104,7 +60,7 @@
             <!-- Dashboard Content -->
                 <!-- Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                    <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                    <div class="stat-card bg-white rounded-lg shadow p-6 flex items-center">
                         <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
                             <i class="fas fa-seedling text-2xl"></i>
                         </div>
@@ -113,7 +69,7 @@
                             <h3 class="text-2xl font-bold">12</h3>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                    <div class="stat-card bg-white rounded-lg shadow p-6 flex items-center">
                         <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
                             <i class="fas fa-microchip text-2xl"></i>
                         </div>
@@ -122,7 +78,7 @@
                             <h3 class="text-2xl font-bold">8</h3>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                    <div class="stat-card bg-white rounded-lg shadow p-6 flex items-center">
                         <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
                             <i class="fas fa-clock text-2xl"></i>
                         </div>
@@ -131,7 +87,7 @@
                             <h3 class="text-2xl font-bold">5</h3>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg shadow p-6 flex items-center">
+                    <div class="stat-card bg-white rounded-lg shadow p-6 flex items-center">
                         <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4">
                             <i class="fas fa-exclamation-triangle text-2xl"></i>
                         </div>
@@ -149,7 +105,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <!-- Repeatable Plant Card Component -->
                         <!-- Plant Card 1 -->
-                        <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <div class="plant-card bg-white shadow rounded-lg overflow-hidden">
                             <div class="p-5">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
@@ -208,7 +164,7 @@
                         </div>
 
                         <!-- Plant Card 2 -->
-                        <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <div class="plant-card bg-white shadow rounded-lg overflow-hidden">
                             <div class="p-5">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
@@ -257,7 +213,7 @@
                         </div>
 
                         <!-- Plant Card 3 -->
-                        <div class="bg-white shadow rounded-lg overflow-hidden">
+                        <div class="plant-card bg-white shadow rounded-lg overflow-hidden">
                             <div class="p-5">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">

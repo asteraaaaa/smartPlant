@@ -5,17 +5,37 @@ import com.csc3700.smartplant.model.WateringSchedule;
 import com.csc3700.smartplant.service.PlantService;
 import com.csc3700.smartplant.service.WateringScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/watering")
+@Controller
+@RequestMapping("/schedule")
 public class WateringScheduleController {
-    @Autowired
-    private WateringScheduleService service;
 
-    @GetMapping
+    @Autowired
+    private final WateringScheduleService wateringScheduleService;
+    private final PlantService plantService;
+
+    public WateringScheduleController(WateringScheduleService wateringScheduleService, PlantService plantService) {
+        this.wateringScheduleService = wateringScheduleService;
+        this.plantService = plantService;
+    }
+
+    @GetMapping("")
+    public String listAllWateringSchedule(Model model) {
+        List<Plant> plants = plantService.getAll();
+        List<WateringSchedule> schedules = wateringScheduleService.getAll();
+
+        model.addAttribute("plants", plants);
+        model.addAttribute("schedules", schedules);
+        model.addAttribute("activePage", "schedule");
+        return "main/wateringSchedule";
+    }
+
+    /*@GetMapping
     public List<WateringSchedule> all() {
         return service.getAll();
     }
@@ -31,5 +51,5 @@ public class WateringScheduleController {
 
     @DeleteMapping("/{id}") public void delete(@PathVariable Long id) {
         service.delete(id);
-    }
+    }*/
 }

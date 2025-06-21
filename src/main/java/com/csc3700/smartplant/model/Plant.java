@@ -12,6 +12,7 @@ public class Plant {
     private float optimalMoistureLevel;
     private float optimalTemperature;
     private float optimalHumidity;
+    private Integer wateringFrequency;
 
     @Enumerated(EnumType.STRING)  // Store as string in DB
     @Column(name = "type", columnDefinition = "VARCHAR(255)")
@@ -20,13 +21,14 @@ public class Plant {
     public Plant() {
     }
 
-    public Plant(Long id, String name, PlantType type, float optimalMoistureLevel, float optimalTemperature, float optimalHumidity) {
+    public Plant(Long id, String name, PlantType type, float optimalMoistureLevel, float optimalTemperature, float optimalHumidity, Integer wateringFrequency) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.optimalMoistureLevel = optimalMoistureLevel;
         this.optimalTemperature = optimalTemperature;
         this.optimalHumidity = optimalHumidity;
+        this.wateringFrequency = wateringFrequency;
     }
 
     public Long getId() {
@@ -77,6 +79,14 @@ public class Plant {
         this.optimalHumidity = optimalHumidity;
     }
 
+    public Integer getWateringFrequency() {
+        return wateringFrequency;
+    }
+
+    public void setWateringFrequency(Integer wateringFrequency) {
+        this.wateringFrequency = wateringFrequency;
+    }
+
     @Override
     public String toString() {
         return "Plant{" +
@@ -86,6 +96,7 @@ public class Plant {
                 ", optimalMoistureLevel=" + optimalMoistureLevel +
                 ", optimalTemperature=" + optimalTemperature +
                 ", optimalHumidity=" + optimalHumidity +
+                ", wateringFrequency=" + wateringFrequency +
                 '}';
     }
 }

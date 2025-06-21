@@ -8,11 +8,11 @@ INSERT INTO users (username, email, password, created_at) VALUES
 
 -- Plants
 INSERT INTO plants (name, type, optimal_moisture_level, optimal_temperature, optimal_humidity) VALUES
-    ('Desert Rose', 'Succulent', 15.0, 28.0, 30.0),
-    ('Monstera Deliciosa', 'Tropical', 45.0, 24.0, 70.0),
-    ('Basil', 'Herb', 60.0, 22.0, 50.0),
-    ('Orchid Phalaenopsis', 'Epiphyte', 40.0, 25.0, 80.0),
-    ('Snake Plant', 'Sansevieria', 20.0, 23.0, 40.0);
+    ('Desert Rose', 'SUCCULENT', 15.0, 28.0, 30.0),
+    ('Monstera Deliciosa', 'TROPICAL', 45.0, 24.0, 70.0),
+    ('Basil', 'HERB', 60.0, 22.0, 50.0),
+    ('Orchid Phalaenopsis', 'EPIPHYTE', 40.0, 25.0, 80.0),
+    ('Snake Plant', 'SANSEVIERIA', 20.0, 23.0, 40.0);
 
     -- Sensors
 INSERT INTO sensors (plant_id, soil_moisture, temperature, humidity, recorded_at) VALUES
