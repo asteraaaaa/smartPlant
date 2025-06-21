@@ -9,15 +9,18 @@ public class Plant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private String type;
     private float optimalMoistureLevel;
     private float optimalTemperature;
     private float optimalHumidity;
 
+    @Enumerated(EnumType.STRING)  // Store as string in DB
+    @Column(name = "type", columnDefinition = "VARCHAR(255)")
+    private PlantType type;  // Renamed for clarity
+
     public Plant() {
     }
 
-    public Plant(Long id, String name, String type, float optimalMoistureLevel, float optimalTemperature, float optimalHumidity) {
+    public Plant(Long id, String name, PlantType type, float optimalMoistureLevel, float optimalTemperature, float optimalHumidity) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -42,11 +45,11 @@ public class Plant {
         this.name = name;
     }
 
-    public String getType() {
+    public PlantType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(PlantType type) {
         this.type = type;
     }
 

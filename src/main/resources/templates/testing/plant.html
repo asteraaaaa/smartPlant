@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Profiles - Smart Plant System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ... (keep existing styles) ... */
+    </style>
+</head>
+<body>
+<div class="flex h-screen bg-gray-50">
+    <!-- Sidebar -->
+    <div class="sidebar w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 z-10">
+        <div class="flex items-center justify-center">
+            <div class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                <span class="text-white text-2xl font-semibold">PlantSmart</span>
+            </div>
+        </div>
+        <nav>
+            <a th:href="@{/dashboard}" class="sidebar-link text-gray-300 flex items-center space-x-3 px-4 py-3 rounded-md">
+                <!-- Dashboard icon -->
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/plants}" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-md">
+                <!-- Plant Profiles icon -->
+                <span>Plant Profiles</span>
+            </a>
+            <!-- Other navigation items -->
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 overflow-auto">
+        <header class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                <h1 class="text-2xl font-semibold text-gray-900">Plant Profiles</h1>
+                <div class="flex items-center space-x-4">
+                    <!-- Notification bell -->
+                    <div class="flex items-center space-x-2">
+                        <div class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold"
+                             th:text="${#strings.substring(user.name,0,1)}">J</div>
+                        <span class="font-medium" th:text="${user.name}">John Doe</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <!-- Action Bar -->
+            <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
+                <div class="flex items-center space-x-2">
+                    <div class="relative">
+                        <input type="text" placeholder="Search plants..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="relative">
+                        <select class="pl-4 pr-10 py-2 border border-gray-300 rounded-md">
+                            <option value="">All Types</option>
+                            <option th:each="type : ${plantTypes}"
+                                    th:value="${type}"
+                                    th:text="${type}">Tropical</option>
+                        </select>
+                    </div>
+                </div>
+                <a th:href="@{/plants/new}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md flex items-center space-x-2">
+                    <!-- Plus icon -->
+                    <span>Add New Plant</span>
+                </a>
+            </div>
+
+            <!-- View Toggle -->
+            <div class="mb-6 flex space-x-2 border-b border-gray-200">
+                <!-- View toggle buttons -->
+            </div>
+
+            <!-- Grid View -->
+            <div id="grid-view" class="view-content active">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Plant Card -->
+                    <div th:each="plant : ${plants}" class="plant-card bg-white overflow-hidden shadow rounded-lg">
+                        <div class="px-4 pt-5 pb-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <svg class="plant-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <!-- Dynamic icon based on plant type -->
+                                            <th:block th:switch="${plant.type}">
+                                                <th:block th:case="'Tropical'">
+                                                    <!-- Tropical icon -->
+                                                </th:block>
+                                                <th:block th:case="'Succulent'">
+                                                    <!-- Succulent icon -->
+                                                </th:block>
+                                                <!-- Other cases -->
+                                            </th:block>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-medium text-gray-900" th:text="${plant.name}">Plant Name</h3>
+                                        <p class="text-sm text-gray-500" th:text="${plant.type}">Plant Type</p>
+                                    </div>
+                                </div>
+                                <span th:classappend="${plant.status == 'Healthy'} ? 'status-optimal' :
+                                                      ${plant.status == 'Needs Water'} ? 'status-warning' : 'status-critical'"
+                                      class="status-badge"
+                                      th:text="${plant.status}">Status</span>
+                            </div>
+                            <div class="mt-6 space-y-4">
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Moisture</div>
+                                        <div class="text-sm font-semibold" th:text="${plant.moisture}">60-70%</div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Temperature</div>
+                                        <div class="text-sm font-semibold" th:text="${plant.temperature}">18-27°C</div>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="text-xs text-gray-500">Humidity</div>
+                                        <div class="text-sm font-semibold" th:text="${plant.humidity}">50-60%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 bg-white border-t border-gray-200 flex justify-between">
+                            <a th:href="@{/plants/edit/{id}(id=${plant.id})" class="text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center">
+                                <!-- Edit icon -->
+                                Edit
+                            </a>
+                            <a th:href="@{/plants/delete/{id}(id=${plant.id})" class="text-sm font-medium text-red-600 hover:text-red-500 flex items-center">
+                                <!-- Delete icon -->
+                                Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- List View -->
+            <div id="list-view" class="view-content hidden">
+                <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                    <ul class="divide-y divide-gray-200">
+                        <li th:each="plant : ${plants}">
+                            <div class="px-4 py-4 sm:px-6">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <!-- Plant icon -->
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-indigo-600 truncate" th:text="${plant.name}"></div>
+                                            <div class="text-sm text-gray-500" th:text="${plant.type}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <span th:classappend="${plant.status == 'Healthy'} ? 'status-optimal' :
+                                                      ${plant.status == 'Needs Water'} ? 'status-warning' : 'status-critical'"
+                                              class="status-badge"
+                                              th:text="${plant.status}">Status</span>
+                                        <!-- Action buttons -->
+                                    </div>
+                                </div>
+                                <div class="mt-2 sm:flex sm:justify-between">
+                                    <div class="sm:flex">
+                                        <!-- Sensor data -->
+                                    </div>
+                                    <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                                        <span th:text="'Last watered: ' + ${plant.lastWatered}">Last watered</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    // ... (keep existing JavaScript) ...
+</script>
+</body>
+</html>
