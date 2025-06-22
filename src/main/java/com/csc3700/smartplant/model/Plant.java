@@ -9,80 +9,80 @@ public class Plant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private float optimalMoistureLevel;
-    private float optimalTemperature;
-    private float optimalHumidity;
+    private float minOptimalMoisture;  // Added min moisture
+    private float maxOptimalMoisture;  // Added max moisture
+    private float minOptimalTemperature; // Added min temperature
+    private float maxOptimalTemperature; // Added max temperature
+    private float minOptimalHumidity;  // Added min humidity
+    private float maxOptimalHumidity;  // Added max humidity
     private Integer wateringFrequency;
 
-    @Enumerated(EnumType.STRING)  // Store as string in DB
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", columnDefinition = "VARCHAR(255)")
-    private PlantType type;  // Renamed for clarity
+    private PlantType type;
 
     public Plant() {
     }
 
-    public Plant(Long id, String name, PlantType type, float optimalMoistureLevel, float optimalTemperature, float optimalHumidity, Integer wateringFrequency) {
+    // Updated constructor with range parameters
+    public Plant(Long id, String name, PlantType type,
+                 float minOptimalMoisture, float maxOptimalMoisture,
+                 float minOptimalTemperature, float maxOptimalTemperature,
+                 float minOptimalHumidity, float maxOptimalHumidity,
+                 Integer wateringFrequency) {
         this.id = id;
         this.name = name;
         this.type = type;
-        this.optimalMoistureLevel = optimalMoistureLevel;
-        this.optimalTemperature = optimalTemperature;
-        this.optimalHumidity = optimalHumidity;
+        this.minOptimalMoisture = minOptimalMoisture;
+        this.maxOptimalMoisture = maxOptimalMoisture;
+        this.minOptimalTemperature = minOptimalTemperature;
+        this.maxOptimalTemperature = maxOptimalTemperature;
+        this.minOptimalHumidity = minOptimalHumidity;
+        this.maxOptimalHumidity = maxOptimalHumidity;
         this.wateringFrequency = wateringFrequency;
     }
 
-    public Long getId() {
-        return id;
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public PlantType getType() { return type; }
+    public void setType(PlantType type) { this.type = type; }
+
+    // Moisture range accessors
+    public float getMinOptimalMoisture() { return minOptimalMoisture; }
+    public void setMinOptimalMoisture(float minOptimalMoisture) {
+        this.minOptimalMoisture = minOptimalMoisture;
+    }
+    public float getMaxOptimalMoisture() { return maxOptimalMoisture; }
+    public void setMaxOptimalMoisture(float maxOptimalMoisture) {
+        this.maxOptimalMoisture = maxOptimalMoisture;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    // Temperature range accessors
+    public float getMinOptimalTemperature() { return minOptimalTemperature; }
+    public void setMinOptimalTemperature(float minOptimalTemperature) {
+        this.minOptimalTemperature = minOptimalTemperature;
+    }
+    public float getMaxOptimalTemperature() { return maxOptimalTemperature; }
+    public void setMaxOptimalTemperature(float maxOptimalTemperature) {
+        this.maxOptimalTemperature = maxOptimalTemperature;
     }
 
-    public String getName() {
-        return name;
+    // Humidity range accessors
+    public float getMinOptimalHumidity() { return minOptimalHumidity; }
+    public void setMinOptimalHumidity(float minOptimalHumidity) {
+        this.minOptimalHumidity = minOptimalHumidity;
+    }
+    public float getMaxOptimalHumidity() { return maxOptimalHumidity; }
+    public void setMaxOptimalHumidity(float maxOptimalHumidity) {
+        this.maxOptimalHumidity = maxOptimalHumidity;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public PlantType getType() {
-        return type;
-    }
-
-    public void setType(PlantType type) {
-        this.type = type;
-    }
-
-    public float getOptimalMoistureLevel() {
-        return optimalMoistureLevel;
-    }
-
-    public void setOptimalMoistureLevel(float optimalMoistureLevel) {
-        this.optimalMoistureLevel = optimalMoistureLevel;
-    }
-
-    public float getOptimalTemperature() {
-        return optimalTemperature;
-    }
-
-    public void setOptimalTemperature(float optimalTemperature) {
-        this.optimalTemperature = optimalTemperature;
-    }
-
-    public float getOptimalHumidity() {
-        return optimalHumidity;
-    }
-
-    public void setOptimalHumidity(float optimalHumidity) {
-        this.optimalHumidity = optimalHumidity;
-    }
-
-    public Integer getWateringFrequency() {
-        return wateringFrequency;
-    }
-
+    public Integer getWateringFrequency() { return wateringFrequency; }
     public void setWateringFrequency(Integer wateringFrequency) {
         this.wateringFrequency = wateringFrequency;
     }
@@ -92,10 +92,13 @@ public class Plant {
         return "Plant{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", type='" + type + '\'' +
-                ", optimalMoistureLevel=" + optimalMoistureLevel +
-                ", optimalTemperature=" + optimalTemperature +
-                ", optimalHumidity=" + optimalHumidity +
+                ", type=" + type +
+                ", minOptimalMoisture=" + minOptimalMoisture +
+                ", maxOptimalMoisture=" + maxOptimalMoisture +
+                ", minOptimalTemperature=" + minOptimalTemperature +
+                ", maxOptimalTemperature=" + maxOptimalTemperature +
+                ", minOptimalHumidity=" + minOptimalHumidity +
+                ", maxOptimalHumidity=" + maxOptimalHumidity +
                 ", wateringFrequency=" + wateringFrequency +
                 '}';
     }
