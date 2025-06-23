@@ -62,4 +62,23 @@ public class SensorServiceImpl implements SensorService {
             pumpClient.turnOnPump(5000);
         }
     }
+
+    @Override
+    public String evaluatePlantStatus(Sensor sensor, Plant plant) {
+        int issues = 0;
+
+        if (sensor.getSoilMoisture() < plant.getMinOptimalMoisture() || sensor.getSoilMoisture() > plant.getMaxOptimalMoisture()) issues++;
+        if (sensor.getTemperature() < plant.getMinOptimalTemperature() || sensor.getTemperature() > plant.getMaxOptimalTemperature()) issues++;
+        if (sensor.getHumidity() < plant.getMinOptimalHumidity() || sensor.getHumidity() > plant.getMaxOptimalHumidity()) issues++;
+
+        if (issues == 0) return "Healthy";
+        else if (issues == 1) return "Warning";
+        else return "Critical";
+    }
+
+    @Override
+    public List<Sensor> getRecentSensorDataByPlantId(Long plantId) {
+        // You can limit to last 24h / 7d etc., if needed
+        return sensorRepo.findByPlantIdOrderByRecordedAtAsc(plantId);
+    }
 }

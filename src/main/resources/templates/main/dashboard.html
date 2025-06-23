@@ -117,7 +117,11 @@
                                         </div>
                                     </div>
                                     <div class="flex items-center space-x-4">
-                                        <span class="status-badge status-optimal">Healthy</span>
+                                        <span th:text="${plant.status}"
+                                              th:class="'status-badge ' +
+                                              (${plant.status} == 'Critical' ? 'status-critical' :
+                                              (${plant.status} == 'Warning' ? 'status-warning' : 'status-optimal'))">
+                                        </span>
                                         <div class="flex space-x-2">
                                             <button class="text-indigo-600 hover:text-indigo-900">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -140,7 +144,7 @@
                                 </div>
                                 <div class="mt-2 sm:flex sm:justify-between">
                                     <div class="sm:flex">
-                                        <div class="flex items-center text-sm text-gray-500 mr-6">
+                                        <div class="mt-2 flex items-center text-sm text-gray-500 mr-6">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                                             </svg>
@@ -190,6 +194,92 @@
                             <canvas id="sensorChart"></canvas>
                         </div>
                     </div>
+                    <!-- Load Chart.js -->
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+                    <!-- Thymeleaf JSON Data Injection -->
+                    <script th:inline="javascript">
+                        /*<![CDATA[*/
+                        const sensorData = [[${sensorDataList}]];
+                        const minOptimalMoisture = [[${selectedPlant.minOptimalMoisture}]];
+                        const maxOptimalMoisture = [[${selectedPlant.maxOptimalMoisture}]];
+                        /*]]>*/
+                    </script>
+
+                    <!-- Chart.js Configuration -->
+                    <script>
+                        const labels = sensorData.map(d => new Date(d.timestamp).toLocaleString());
+                        const temperatureData = sensorData.map(d => d.temperature);
+                        const humidityData = sensorData.map(d => d.humidity);
+                        const moistureData = sensorData.map(d => d.soilMoisture);
+
+                        const ctx = document.getElementById('sensorChart').getContext('2d');
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels,
+                                datasets: [
+                                    {
+                                        label: 'Temperature (°C)',
+                                        data: temperatureData,
+                                        borderColor: 'rgba(255, 99, 132, 1)',
+                                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                        fill: false,
+                                        tension: 0.3
+                                    },
+                                    {
+                                        label: 'Humidity (%)',
+                                        data: humidityData,
+                                        borderColor: 'rgba(54, 162, 235, 1)',
+                                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                        fill: false,
+                                        tension: 0.3
+                                    },
+                                    {
+                                        label: 'Soil Moisture (%)',
+                                        data: moistureData,
+                                        borderColor: 'rgba(75, 192, 192, 1)',
+                                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                        fill: false,
+                                        tension: 0.3
+                                    },
+                                    {
+                                        label: 'Min Moisture Threshold',
+                                        data: Array(labels.length).fill(minOptimalMoisture),
+                                        borderColor: 'rgba(255, 206, 86, 1)',
+                                        borderDash: [5, 5],
+                                        pointRadius: 0,
+                                        fill: false
+                                    },
+                                    {
+                                        label: 'Max Moisture Threshold',
+                                        data: Array(labels.length).fill(maxOptimalMoisture),
+                                        borderColor: 'rgba(153, 102, 255, 1)',
+                                        borderDash: [5, 5],
+                                        pointRadius: 0,
+                                        fill: false
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    y: {
+                                        beginAtZero: false
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom'
+                                    },
+                                    tooltip: {
+                                        mode: 'index',
+                                        intersect: false
+                                    }
+                                }
+                            }
+                        });
+                    </script>
 
                     <div class="bg-white p-4 rounded-lg shadow-md">
                         <h3 class="text-lg font-medium text-gray-800 mb-4">Recent Sensor Records</h3>
@@ -235,443 +325,3 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-    <!--    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f8f9fa;
-            color: #333;
-        }
-        .plant-card {
-            transition: all 0.3s ease;
-        }
-        .plant-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        .sidebar {
-            transition: all 0.3s;
-        }
-        .sidebar.collapsed {
-            width: 70px;
-        }
-        .sidebar.collapsed .nav-text {
-            display: none;
-        }
-        .sidebar.collapsed .logo-text {
-            display: none;
-        }
-        .main-content {
-            transition: all 0.3s;
-        }
-        .main-content.expanded {
-            margin-left: 70px;
-        }
-    </style>
-</head>
-
-<body>
-<div layout:fragment="content">
-    <div class="flex h-screen overflow-hidden">
-        <div class = "flex-grow p-6"> -->
-            <!-- Dashboard Content -->
-                <!-- Stats Cards -->
-                <!-- <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                    <div class="stat-card bg-white rounded-lg shadow p-6 flex items-center">
-                        <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
-                            <i class="fas fa-seedling text-2xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-gray-500">Total Plants</p>
-                            <h3 class="text-2xl font-bold" th:text="${totalPlants}">0</h3>
-                        </div>
-                    </div>
-                    <div class="stat-card bg-white rounded-lg shadow p-6 flex items-center">
-                        <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
-                            <i class="fas fa-microchip text-2xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-gray-500">Active Sensors</p>
-                            <h3 class="text-2xl font-bold" th:text="${activeSensors}">0</h3>
-                        </div>
-                    </div>
-                    <div class="stat-card bg-white rounded-lg shadow p-6 flex items-center">
-                        <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
-                            <i class="fas fa-clock text-2xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-gray-500">Scheduled Tasks</p>
-                            <h3 class="text-2xl font-bold" th:text="${scheduleCount}">0</h3>
-                        </div>
-                    </div>
-                    <div class="stat-card bg-white rounded-lg shadow p-6 flex items-center">
-                        <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4">
-                            <i class="fas fa-exclamation-triangle text-2xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-gray-500">Alerts</p>
-                            <h3 class="text-2xl font-bold" th:text="${alertCount}">0</h3>
-                        </div>
-                    </div>
-                </div> -->
-
-                <!-- Plant Status Section -->
-                <!-- <div class="mb-12">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Plant Status</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> -->
-                        <!-- Plant Card 1 -->
-                        <!-- <div class="plant-card bg-white shadow rounded-lg overflow-hidden" th:each="plant : ${plants}">
-                            <div class="p-5">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                                            <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                            </svg>
-                                        </div>
-                                        <div class="ml-4">
-                                            <h3 class="text-lg font-medium text-gray-900" th:text="${plant.name}">Plant Name</h3>
-                                            <p class="text-sm text-gray-500" th:text="${plant.type}">Plant Type</p>
-                                        </div>
-                                    </div>
-                                    <span class="px-3 py-1 text-sm rounded-full"
-                                          th:classappend="${plant.minOptimalMoisture > 40} ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'"
-                                          th:text="'Moisture ' + ${plant.minOptimalMoisture} + '% to ' + ${plant.maxOptimalMoisture} + '%'">Status</span>
-                                </div>
-
-                                <div class="mt-6 space-y-4">
-                                    <div>
-                                        <div class="flex justify-between text-sm font-medium text-gray-700 mb-1">
-                                            <span>Soil Moisture</span>
-                                            <span th:text="${plant.minOptimalMoisture + '% - ' + plant.maxOptimalMoisture + '%'}"></span>
-                                        </div>
-                                        <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden relative">
-                                            <div class="h-full w-full rounded-full"
-                                                 style="
-                             background: linear-gradient(to right, #FF6B6B, #FFD93D, #6BCB77);
-                             background-size: 100%;
-                             background-repeat: no-repeat;
-                             position: absolute;
-                             top: 0;
-                             left: 0;
-                             width: 100%;
-                             height: 100%;
-                             clip-path: inset(0 28% 0 0); /* 100 - moisture% = 72% hidden */
-                           ">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div class="bg-gray-50 p-3 rounded-lg text-center">
-                                            <span>Temperature</span>
-                                            <span th:text="${plant.minOptimalTemperature + '°C - ' + plant.maxOptimalTemperature + '°C'}"></span>
-                                        </div>
-                                        <div class="bg-gray-50 p-3 rounded-lg text-center">
-                                            <span>Humidity</span>
-                                            <span th:text="${plant.minOptimalHumidity + '% - ' + plant.maxOptimalHumidity + '%'}"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 px-5 py-3 flex justify-between">
-                                <a th:href="@{/plants/{id}(id=${plant.id})}" class="text-sm font-medium text-indigo-600 hover:underline">View Details</a>
-                                <a th:href="@{/plants/water/{id}(id=${plant.id})}" class="text-sm font-medium text-indigo-600 hover:underline">Water Now</a>
-                            </div>
-                        </div> -->
-
-                        <!-- Plant Card 2 -->
-                        <!-- <div class="plant-card bg-white shadow rounded-lg overflow-hidden">
-                            <div class="p-5">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                                            <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                            </svg>
-                                        </div>
-                                        <div class="ml-4">
-                                            <h3 class="text-lg font-medium text-gray-900">Fiddle Leaf Fig</h3>
-                                            <p class="text-sm text-gray-500">Indoor Tree</p>
-                                        </div>
-                                    </div>
-                                    <span class="px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-800">Needs Water</span>
-                                </div>
-
-                                <div class="mt-6 space-y-4">
-                                    <div>
-                                        <div class="flex justify-between text-sm font-medium text-gray-700 mb-1">
-                                            <span>Soil Moisture</span>
-                                            <span>28%</span>
-                                        </div>
-                                        <div class="w-full h-2 bg-gray-200 rounded-full">
-                                            <div class="h-full bg-red-500 rounded-full" style="width: 28%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div class="bg-gray-50 p-3 rounded-lg text-center">
-                                            <div class="text-sm text-gray-500">Temperature</div>
-                                            <div class="text-lg font-semibold">22°C</div>
-                                        </div>
-                                        <div class="bg-gray-50 p-3 rounded-lg text-center">
-                                            <div class="text-sm text-gray-500">Humidity</div>
-                                            <div class="text-lg font-semibold">45%</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 px-5 py-3 flex justify-between">
-                                <button class="text-sm font-medium text-indigo-600 hover:underline">View Details</button>
-                                <button class="text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1 rounded-md">
-                                    Water Now
-                                </button>
-                            </div>
-                        </div> -->
-
-                        <!-- Plant Card 3 -->
-                        <!-- <div class="plant-card bg-white shadow rounded-lg overflow-hidden">
-                            <div class="p-5">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                                            <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                            </svg>
-                                        </div>
-                                        <div class="ml-4">
-                                            <h3 class="text-lg font-medium text-gray-900">Snake Plant</h3>
-                                            <p class="text-sm text-gray-500">Succulent</p>
-                                        </div>
-                                    </div>
-                                    <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-800">Optimal</span>
-                                </div>
-
-                                <div class="mt-6 space-y-4">
-                                    <div>
-                                        <div class="flex justify-between text-sm font-medium text-gray-700 mb-1">
-                                            <span>Soil Moisture</span>
-                                            <span>42%</span>
-                                        </div>
-                                        <div class="w-full h-2 bg-gray-200 rounded-full">
-                                            <div class="h-full bg-teal-500 rounded-full" style="width: 42%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div class="bg-gray-50 p-3 rounded-lg text-center">
-                                            <div class="text-sm text-gray-500">Temperature</div>
-                                            <div class="text-lg font-semibold">23°C</div>
-                                        </div>
-                                        <div class="bg-gray-50 p-3 rounded-lg text-center">
-                                            <div class="text-sm text-gray-500">Humidity</div>
-                                            <div class="text-lg font-semibold">35%</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 px-5 py-3 flex justify-between">
-                                <button class="text-sm font-medium text-indigo-600 hover:underline">View Details</button>
-                                <button class="text-sm font-medium text-indigo-600 hover:underline">Water Now</button>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
-
-                <!-- Sensor Data Chart -->
-                <!-- <div class="bg-white shadow rounded-lg p-6 mb-8">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-lg font-medium text-gray-900">Sensor Data Trends</h2>
-                        <div class="flex space-x-2">
-                            <button class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-md text-sm font-medium">24h</button>
-                            <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-sm font-medium">7d</button>
-                            <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-sm font-medium">30d</button>
-                        </div>
-                    </div>
-                    <div class="h-64">
-                        <canvas id="sensorChart"></canvas>
-                    </div>
-                </div> -->
-
-                <!-- Recent Activities and Watering Schedule -->
-                <!-- <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h2 class="text-lg font-semibold mb-4">Recent Activities</h2>
-                        <div class="space-y-4">
-                            <div class="flex items-start">
-                                <div class="p-2 rounded-full bg-blue-100 text-blue-600 mr-3">
-                                    <i class="fas fa-tint"></i>
-                                </div>
-                                <div>
-                                    <p class="font-medium">Watering completed</p>
-                                    <p class="text-sm text-gray-500">Monstera Deliciosa was watered at 10:30 AM</p>
-                                    <p class="text-xs text-gray-400">2 hours ago</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="p-2 rounded-full bg-yellow-100 text-yellow-600 mr-3">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                </div>
-                                <div>
-                                    <p class="font-medium">Low humidity alert</p>
-                                    <p class="text-sm text-gray-500">Snake Plant humidity dropped below 35%</p>
-                                    <p class="text-xs text-gray-400">4 hours ago</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="p-2 rounded-full bg-green-100 text-green-600 mr-3">
-                                    <i class="fas fa-check-circle"></i>
-                                </div>
-                                <div>
-                                    <p class="font-medium">New plant added</p>
-                                    <p class="text-sm text-gray-500">Peace Lily was added to your collection</p>
-                                    <p class="text-xs text-gray-400">Yesterday</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
-
-                    <!-- Watering Schedule -->
-                    <!-- <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-lg font-semibold">Watering Schedule</h2>
-                            <button class="text-green-600 hover:text-green-800">
-                                <i class="fas fa-plus"></i> Add Schedule
-                            </button>
-                        </div>
-                        <div class="space-y-3">
-                            <div th:each="schedule : ${schedules}" class="flex items-center justify-between p-3 bg-blue-50 rounded-lg"
-                                 th:classappend="${#temporals.dayOfWeek(schedule.scheduleTime)} == T(java.time.DayOfWeek).SATURDAY or
-                                           ${#temporals.dayOfWeek(schedule.scheduleTime)} == T(java.time.DayOfWeek).SUNDAY ?
-                                           'bg-blue-50' : 'bg-green-50'">
-                                <div class="flex items-center">
-                                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                                        <i class="fas fa-tint text-blue-600"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium" th:text="${schedule.plant.name}">Plant Name</p>
-                                        <p class="text-sm text-gray-500" th:text="'Every ' + ${schedule.plant.wateringFrequency} + ' days'">Frequency</p>
-                                    </div>
-                                </div>
-                                <span class="text-blue-600 font-medium"
-                                      th:text="${#temporals.format(schedule.scheduleTime, 'MMM dd, h:mm a')}"
-                                      th:classappend="${#temporals.dayOfWeek(schedule.scheduleTime)} == T(java.time.DayOfWeek).SATURDAY or
-                                                ${#temporals.dayOfWeek(schedule.scheduleTime)} == T(java.time.DayOfWeek).SUNDAY ?
-                                                'text-blue-600' : 'text-green-600'">Schedule Time</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                                <div class="flex items-center">
-                                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
-                                        <i class="fas fa-tint text-green-600"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium">Peace Lily</p>
-                                        <p class="text-sm text-gray-500">Every 5 days</p>
-                                    </div>
-                                </div>
-                                <span class="text-green-600 font-medium">In 2 days</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-                                <div class="flex items-center">
-                                    <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
-                                        <i class="fas fa-tint text-yellow-600"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-medium">Snake Plant</p>
-                                        <p class="text-sm text-gray-500">Every 7 days</p>
-                                    </div>
-                                </div>
-                                <span class="text-yellow-600 font-medium">In 3 days</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    // Toggle sidebar
-    document.getElementById('toggleSidebar').addEventListener('click', function() {
-        document.getElementById('sidebar').classList.toggle('collapsed');
-        document.getElementById('mainContent').classList.toggle('expanded');
-    });
-
-    // Initialize sensor chart
-    const ctx = document.getElementById('sensorChart').getContext('2d');
-    const sensorChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['6AM', '9AM', '12PM', '3PM', '6PM', '9PM', '12AM'],
-            datasets: [
-                {
-                    label: 'Soil Moisture (%)',
-                    data: [55, 60, 58, 62, 65, 63, 60],
-                    borderColor: '#10B981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Temperature (°C)',
-                    data: [20, 22, 24, 23, 22, 21, 20],
-                    borderColor: '#3B82F6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                },
-                {
-                    label: 'Humidity (%)',
-                    data: [40, 42, 45, 47, 45, 43, 40],
-                    borderColor: '#8B5CF6',
-                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: false
-                }
-            }
-        }
-    });
-
-    // Update gauge values randomly for demo purposes
-    function updateGauges() {
-        const moisture = Math.floor(Math.random() * 30) + 40;
-        const temp = Math.floor(Math.random() * 10) + 18;
-        const humidity = Math.floor(Math.random() * 30) + 30;
-
-        document.querySelectorAll('.gauge-fill')[0].style.transform = `rotate(${(moisture / 100) * 0.5}turn)`;
-        document.querySelectorAll('.gauge-cover')[0].textContent = `${moisture}%`;
-
-        document.querySelectorAll('.gauge-fill')[1].style.transform = `rotate(${(temp / 40) * 0.5}turn)`;
-        document.querySelectorAll('.gauge-cover')[1].textContent = `${temp}°C`;
-
-        document.querySelectorAll('.gauge-fill')[2].style.transform = `rotate(${(humidity / 100) * 0.5}turn)`;
-        document.querySelectorAll('.gauge-cover')[2].textContent = `${humidity}%`;
-
-        setTimeout(updateGauges, 3000);
-    }
-
-    // Start gauge updates
-    updateGauges();
-</script> -->
-<!-- Bootstrap JS -->

@@ -20,6 +20,9 @@ public class Plant {
     private Integer wateringFrequency;
     private LocalDate lastWatered;
 
+    @Transient
+    private String status;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "type", columnDefinition = "VARCHAR(255)")
     private PlantType type;
@@ -32,7 +35,7 @@ public class Plant {
                  float minOptimalMoisture, float maxOptimalMoisture,
                  float minOptimalTemperature, float maxOptimalTemperature,
                  float minOptimalHumidity, float maxOptimalHumidity,
-                 Integer wateringFrequency, LocalDate lastWatered) {
+                 Integer wateringFrequency, LocalDate lastWatered, String status) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -44,6 +47,7 @@ public class Plant {
         this.maxOptimalHumidity = maxOptimalHumidity;
         this.wateringFrequency = wateringFrequency;
         this.lastWatered = lastWatered;
+        this.status = status;
     }
 
     // Getters and setters
@@ -99,6 +103,14 @@ public class Plant {
         this.lastWatered = lastWatered;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "Plant{" +
@@ -113,6 +125,7 @@ public class Plant {
                 ", maxOptimalHumidity=" + maxOptimalHumidity +
                 ", wateringFrequency=" + wateringFrequency +
                 ", lastWatered=" + lastWatered +
+                ", status='" + status + '\'' +
                 '}';
     }
 }
