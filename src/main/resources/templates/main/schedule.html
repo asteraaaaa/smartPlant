@@ -61,62 +61,54 @@
             <!-- Calendar column -->
             <div class="md:w-2/3">
                 <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-semibold text-gray-800 mb-6">Watering Calendar</h2>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 rounded-md bg-gray-100 text-gray-700"
+                                    th:text="${#temporals.format(currentMonth, 'MMMM yyyy')}">June 2025</button>
+                        </div>
+                    </div>
                     <!-- Calendar Legend -->
                     <div class="flex items-center space-x-4 mb-2">
                         <div class="flex items-center"><span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>Indoor Plants</div>
                         <div class="flex items-center"><span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>Outdoor Plants</div>
                         <div class="flex items-center"><span class="w-3 h-3 bg-orange-500 rounded-full mr-2"></span>Herbs</div>
                     </div>
+                    <div class="grid grid-cols-7 gap-1 mb-2 text-center text-sm font-medium text-gray-500">
+                        <div>Sun</div>
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
+                    </div>
                     <div id="calendar" class="grid grid-cols-7 gap-2 text-sm text-center">
-                        <script>
-                            const scheduledDates = [
-                                { date: '2025-06-03', type: 'Indoor' },
-                                { date: '2025-06-05', type: 'Outdoor' },
-                                { date: '2025-06-15', type: 'Herb' },
-                                { date: '2025-06-22', type: 'Indoor' }, // today
-                            ];
+                        <th:block th:each="i : ${#numbers.sequence(1, firstDayOfMonth)}">
+                            <div class="calendar-day"></div>
+                        </th:block>
 
-                            const today = new Date().toISOString().split('T')[0];
-                            const calendar = document.getElementById("calendar");
+                        <!-- Calendar days -->
+                        <th:block th:each="day : ${#numbers.sequence(1, daysInMonth)}">
+                            <div th:with="currentDate=${T(java.time.LocalDate).of(currentMonth.year, currentMonth.month, day)}"
+                                 class="calendar-day hover:bg-gray-100 cursor-pointer"
+                                 th:classappend="${currentDate.equals(T(java.time.LocalDate).now())} ? 'ring-2 ring-green-500' : ''">
 
-                            const getTypeColor = (type) => {
-                                switch (type) {
-                                    case 'Indoor': return 'bg-green-200';
-                                    case 'Outdoor': return 'bg-blue-200';
-                                    case 'Herb': return 'bg-orange-200';
-                                    default: return 'bg-gray-200';
-                                }
-                            };
+                                <div th:text="${day}" class="text-sm"></div>
 
-                            // Generate calendar for June 2025
-                            const daysInMonth = 30;
-                            const startDay = new Date('2025-06-01').getDay(); // 0 = Sunday
-                            for (let i = 0; i < startDay; i++) {
-                                calendar.innerHTML += `<div class="h-12"></div>`; // empty start padding
-                            }
-
-                            for (let day = 1; day <= daysInMonth; day++) {
-                                const fullDate = `2025-06-${String(day).padStart(2, '0')}`;
-                                const schedule = scheduledDates.find(d => d.date === fullDate);
-
-                                calendar.innerHTML += `
-                                        <div class="h-12 flex items-center justify-center rounded-lg
-                                            ${schedule ? getTypeColor(schedule.type) : 'hover:bg-gray-100'}
-                                            ${fullDate === today ? 'ring ring-green-400' : ''}">
-                                            ${day}
-                                        </div>`;
-                            }
-
-                            // Handle today's schedule display
-                            const todayEntry = scheduledDates.find(d => d.date === today);
-                            const todayDiv = document.getElementById("todaySchedule");
-                            if (todayEntry) {
-                                todayDiv.innerHTML = `
-                                        <div class="text-emerald-600 font-semibold text-sm">✓ Watering scheduled for today</div>
-                                        <div class="text-gray-500 text-sm mt-1">${todayEntry.type} plant</div>`;
-                            }
-                        </script>
+                                <!-- Indicators for scheduled waterings -->
+                                <th:block th:each="schedule : ${schedules}">
+                                    <th:block th:if="${schedule.scheduleDate != null and schedule.scheduleDate.equals(currentDate)}">
+                                        <div th:switch="${schedule.plant.type}" class="absolute bottom-1 left-1/2 transform -translate-x-1/2">
+                                            <span th:case="INDOOR" class="w-2 h-2 bg-green-500 rounded-full block"></span>
+                                            <span th:case="OUTDOOR" class="w-2 h-2 bg-blue-500 rounded-full block"></span>
+                                            <span th:case="HERB" class="w-2 h-2 bg-orange-500 rounded-full block"></span>
+                                        </div>
+                                    </th:block>
+                                </th:block>
+                            </div>
+                        </th:block>
+                    </div>
                     </div>
                 </div>
 
@@ -139,10 +131,12 @@
                                 </form>
                             </div>
                         </div>
-                        <div id="todaySchedule" class="text-center text-gray-500">
-                            <i class="fas fa-calendar-times text-3xl mb-2 text-gray-400"></i><br>
-                            No watering scheduled for today
-                        </div>
+                        <th:block th:if="${todaySchedules != null and todaysSchedules.isEmpty()}">
+                            <div class="text-center text-gray-500 py-4">
+                                <i class="fas fa-calendar-times text-3xl mb-2 text-gray-400"></i>
+                                <p>No watering scheduled for today</p>
+                            </div>
+                        </th:block>
                     </div>
                 </div>
             </div>
@@ -179,6 +173,7 @@
                     </div>
                 </div>
             </div>
+    </main>
         </div>
     </main>
 </div>

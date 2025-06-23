@@ -9,6 +9,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @Controller
@@ -28,7 +30,15 @@ public class WateringScheduleController {
     public String listAllWateringSchedule(Model model) {
         List<Plant> plants = plantService.getAll();
         List<WateringSchedule> schedules = wateringScheduleService.getAll();
+        LocalDate today = LocalDate.now();
+        YearMonth currentMonth = YearMonth.of(today.getYear(), today.getMonth());
 
+        int daysInMonth = currentMonth.lengthOfMonth();
+        int firstDayOfWeek = LocalDate.of(currentMonth.getYear(), currentMonth.getMonth(), 1).getDayOfWeek().getValue();
+
+        model.addAttribute("currentMonth", currentMonth);
+        model.addAttribute("daysInMonth", daysInMonth);
+        model.addAttribute("firstDayOfMonth", firstDayOfWeek);
         model.addAttribute("plants", plants);
         model.addAttribute("schedules", schedules);
         model.addAttribute("activePage", "schedule");

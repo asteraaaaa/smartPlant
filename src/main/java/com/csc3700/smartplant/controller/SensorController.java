@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
-@RequestMapping("/sensors")
+@RequestMapping("/sensor")
 public class SensorController {
     private final SensorService sensorService;
     public SensorController(SensorService sensorService) {
