@@ -5,6 +5,8 @@ import com.csc3700.smartplant.service.SensorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static org.springframework.http.ResponseEntity.ok;
+
 @RestController
 @RequestMapping("/api/sensors")
 public class SensorApiController {
@@ -14,8 +16,8 @@ public class SensorApiController {
   }
 
   @PostMapping
-  public ResponseEntity<Void> ingest(@RequestBody SensorDto dto) {
+  public ResponseEntity<String> ingest(@RequestBody SensorDto dto) {
     sensorService.ingest(dto);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok("Data saved"); // ✅ required!
   }
 }

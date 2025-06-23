@@ -1,13 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Plant Dashboard</title>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+  <!-- Font Awesome CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+    .plant-card {
+      transition: all 0.3s ease;
+    }
+    .plant-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
     .sidebar {
       transition: all 0.3s;
     }
@@ -26,189 +49,50 @@
     .main-content.expanded {
       margin-left: 70px;
     }
-    .plant-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
-    .gauge {
-      position: relative;
-      width: 100%;
-      height: 120px;
-      margin: 0 auto;
-    }
-    .gauge-body {
-      width: 100%;
-      height: 0;
-      padding-bottom: 50%;
-      position: relative;
-      border-top-left-radius: 100% 200%;
-      border-top-right-radius: 100% 200%;
-      overflow: hidden;
-      background: #f5f5f5;
-    }
-    .gauge-fill {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      transform-origin: center top;
-      transform: rotate(0.5turn);
-      transition: transform 0.5s ease-out;
-    }
-    .gauge-cover {
-      width: 75%;
-      height: 150%;
-      background: white;
-      border-radius: 50%;
-      position: absolute;
-      top: 25%;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5em;
-      font-weight: bold;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1) inset;
-
-      .moisture-indicator {
-        height: 0.5rem;
-        background-color: #e5e7eb; /* Tailwind bg-gray-200 */
-        border-radius: 9999px;
-        overflow: hidden;
-      }
-
-      .moisture-level {
-        height: 100%;
-        width: 100%;
-        border-radius: 9999px;
-      }
-
-    }
   </style>
 </head>
-<body class="bg-gray-100 font-sans">
-<div class="flex h-screen overflow-hidden">
-  <!-- Sidebar -->
-  <div id="sidebar" class="sidebar bg-green-800 text-white w-64 flex-shrink-0 flex flex-col">
-    <div class="flex items-center justify-between p-4 border-b border-green-700">
-      <div class="flex items-center">
-        <i class="fas fa-leaf text-2xl mr-3"></i>
-        <span class="logo-text text-xl font-bold">SmartPlant</span>
-      </div>
-      <button id="toggleSidebar" class="text-white focus:outline-none">
-        <i class="fas fa-bars"></i>
-      </button>
-    </div>
-    <nav class="flex-grow p-4">
-      <ul class="space-y-2">
-        <li>
-          <a href="#" class="flex items-center p-2 rounded hover:bg-green-700 active-nav">
-            <i class="fas fa-tachometer-alt mr-3"></i>
-            <span class="nav-text">Dashboard</span>
-          </a>
-        </li>
-        <li>
-          <a href="#" class="flex items-center p-2 rounded hover:bg-green-700">
-            <i class="fas fa-seedling mr-3"></i>
-            <span class="nav-text">Plants</span>
-          </a>
-        </li>
-        <li>
-          <a href="#" class="flex items-center p-2 rounded hover:bg-green-700">
-            <i class="fas fa-chart-line mr-3"></i>
-            <span class="nav-text">Sensors</span>
-          </a>
-        </li>
-        <li>
-          <a href="#" class="flex items-center p-2 rounded hover:bg-green-700">
-            <i class="fas fa-clock mr-3"></i>
-            <span class="nav-text">Schedules</span>
-          </a>
-        </li>
-        <li>
-          <a href="#" class="flex items-center p-2 rounded hover:bg-green-700">
-            <i class="fas fa-clipboard-list mr-3"></i>
-            <span class="nav-text">Logs</span>
-          </a>
-        </li>
-        <li>
-          <a href="#" class="flex items-center p-2 rounded hover:bg-green-700">
-            <i class="fas fa-users mr-3"></i>
-            <span class="nav-text">Users</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
-    <div class="p-4 border-t border-green-700">
-      <div class="flex items-center">
-        <img src="https://via.placeholder.com/40" alt="User" class="rounded-full mr-3">
-        <div class="nav-text">
-          <div class="font-medium">Admin User</div>
-          <div class="text-sm text-green-200">admin@smartplant.com</div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Main Content -->
-  <div id="mainContent" class="main-content flex-grow flex flex-col overflow-auto">
-    <!-- Header -->
-    <header class="bg-white shadow-sm p-4 flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
-      <div class="flex items-center space-x-4">
-        <div class="relative">
-          <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-          <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-        </div>
-        <button class="text-gray-600 hover:text-gray-900">
-          <i class="fas fa-bell text-xl"></i>
-        </button>
-        <button class="text-gray-600 hover:text-gray-900">
-          <i class="fas fa-cog text-xl"></i>
-        </button>
-      </div>
-    </header>
-
-    <!-- Dashboard Content -->
-    <main class="flex-grow p-6">
+<body>
+<div layout:fragment="content">
+  <div class="flex h-screen overflow-hidden">
+    <div class = "flex-grow p-6">
+      <!-- Dashboard Content -->
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+        <div class="stat-card bg-white rounded-lg shadow p-6 flex items-center">
           <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
             <i class="fas fa-seedling text-2xl"></i>
           </div>
           <div>
             <p class="text-gray-500">Total Plants</p>
-            <h3 class="text-2xl font-bold">12</h3>
+            <h3 class="text-2xl font-bold" th:text="${totalPlants}">0</h3>
           </div>
         </div>
-        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+        <div class="stat-card bg-white rounded-lg shadow p-6 flex items-center">
           <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
             <i class="fas fa-microchip text-2xl"></i>
           </div>
           <div>
             <p class="text-gray-500">Active Sensors</p>
-            <h3 class="text-2xl font-bold">8</h3>
+            <h3 class="text-2xl font-bold" th:text="${activeSensors}">0</h3>
           </div>
         </div>
-        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+        <div class="stat-card bg-white rounded-lg shadow p-6 flex items-center">
           <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
             <i class="fas fa-clock text-2xl"></i>
           </div>
           <div>
             <p class="text-gray-500">Scheduled Tasks</p>
-            <h3 class="text-2xl font-bold">5</h3>
+            <h3 class="text-2xl font-bold" th:text="${scheduleCount}">0</h3>
           </div>
         </div>
-        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+        <div class="stat-card bg-white rounded-lg shadow p-6 flex items-center">
           <div class="p-3 rounded-full bg-red-100 text-red-600 mr-4">
             <i class="fas fa-exclamation-triangle text-2xl"></i>
           </div>
           <div>
             <p class="text-gray-500">Alerts</p>
-            <h3 class="text-2xl font-bold">2</h3>
+            <h3 class="text-2xl font-bold" th:text="${alertCount}">0</h3>
           </div>
         </div>
       </div>
@@ -216,11 +100,10 @@
       <!-- Plant Status Section -->
       <div class="mb-12">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Plant Status</h2>
-
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <!-- Repeatable Plant Card Component -->
           <!-- Plant Card 1 -->
-          <div class="bg-white shadow rounded-lg overflow-hidden">
+          <div class="plant-card bg-white shadow rounded-lg overflow-hidden" th:each="plant : ${plants}">
             <div class="p-5">
               <div class="flex items-center justify-between">
                 <div class="flex items-center">
@@ -231,18 +114,20 @@
                     </svg>
                   </div>
                   <div class="ml-4">
-                    <h3 class="text-lg font-medium text-gray-900">Monstera Deliciosa</h3>
-                    <p class="text-sm text-gray-500">Tropical Plant</p>
+                    <h3 class="text-lg font-medium text-gray-900" th:text="${plant.name}">Plant Name</h3>
+                    <p class="text-sm text-gray-500" th:text="${plant.type}">Plant Type</p>
                   </div>
                 </div>
-                <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-800">Optimal</span>
+                <span class="px-3 py-1 text-sm rounded-full"
+                      th:classappend="${plant.minOptimalMoisture > 40} ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'"
+                      th:text="'Moisture ' + ${plant.minOptimalMoisture} + '% to ' + ${plant.maxOptimalMoisture} + '%'">Status</span>
               </div>
 
               <div class="mt-6 space-y-4">
                 <div>
                   <div class="flex justify-between text-sm font-medium text-gray-700 mb-1">
                     <span>Soil Moisture</span>
-                    <span>72%</span>
+                    <span th:text="${plant.minOptimalMoisture + '% - ' + plant.maxOptimalMoisture + '%'}"></span>
                   </div>
                   <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden relative">
                     <div class="h-full w-full rounded-full"
@@ -262,24 +147,24 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                   <div class="bg-gray-50 p-3 rounded-lg text-center">
-                    <div class="text-sm text-gray-500">Temperature</div>
-                    <div class="text-lg font-semibold">24°C</div>
+                    <span>Temperature</span>
+                    <span th:text="${plant.minOptimalTemperature + '°C - ' + plant.maxOptimalTemperature + '°C'}"></span>
                   </div>
                   <div class="bg-gray-50 p-3 rounded-lg text-center">
-                    <div class="text-sm text-gray-500">Humidity</div>
-                    <div class="text-lg font-semibold">60%</div>
+                    <span>Humidity</span>
+                    <span th:text="${plant.minOptimalHumidity + '% - ' + plant.maxOptimalHumidity + '%'}"></span>
                   </div>
                 </div>
               </div>
             </div>
             <div class="bg-gray-50 px-5 py-3 flex justify-between">
-              <button class="text-sm font-medium text-indigo-600 hover:underline">View Details</button>
-              <button class="text-sm font-medium text-indigo-600 hover:underline">Water Now</button>
+              <a th:href="@{/plants/{id}(id=${plant.id})}" class="text-sm font-medium text-indigo-600 hover:underline">View Details</a>
+              <a th:href="@{/plants/water/{id}(id=${plant.id})}" class="text-sm font-medium text-indigo-600 hover:underline">Water Now</a>
             </div>
           </div>
 
           <!-- Plant Card 2 -->
-          <div class="bg-white shadow rounded-lg overflow-hidden">
+          <div class="plant-card bg-white shadow rounded-lg overflow-hidden">
             <div class="p-5">
               <div class="flex items-center justify-between">
                 <div class="flex items-center">
@@ -328,7 +213,7 @@
           </div>
 
           <!-- Plant Card 3 -->
-          <div class="bg-white shadow rounded-lg overflow-hidden">
+          <div class="plant-card bg-white shadow rounded-lg overflow-hidden">
             <div class="p-5">
               <div class="flex items-center justify-between">
                 <div class="flex items-center">
@@ -439,17 +324,24 @@
             </button>
           </div>
           <div class="space-y-3">
-            <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+            <div th:each="schedule : ${schedules}" class="flex items-center justify-between p-3 bg-blue-50 rounded-lg"
+                 th:classappend="${#temporals.dayOfWeek(schedule.scheduleTime)} == T(java.time.DayOfWeek).SATURDAY or
+                                           ${#temporals.dayOfWeek(schedule.scheduleTime)} == T(java.time.DayOfWeek).SUNDAY ?
+                                           'bg-blue-50' : 'bg-green-50'">
               <div class="flex items-center">
                 <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
                   <i class="fas fa-tint text-blue-600"></i>
                 </div>
                 <div>
-                  <p class="font-medium">Monstera Deliciosa</p>
-                  <p class="text-sm text-gray-500">Every 3 days</p>
+                  <p class="font-medium" th:text="${schedule.plant.name}">Plant Name</p>
+                  <p class="text-sm text-gray-500" th:text="'Every ' + ${schedule.plant.wateringFrequency} + ' days'">Frequency</p>
                 </div>
               </div>
-              <span class="text-blue-600 font-medium">Tomorrow 9:00 AM</span>
+              <span class="text-blue-600 font-medium"
+                    th:text="${#temporals.format(schedule.scheduleTime, 'MMM dd, h:mm a')}"
+                    th:classappend="${#temporals.dayOfWeek(schedule.scheduleTime)} == T(java.time.DayOfWeek).SATURDAY or
+                                                ${#temporals.dayOfWeek(schedule.scheduleTime)} == T(java.time.DayOfWeek).SUNDAY ?
+                                                'text-blue-600' : 'text-green-600'">Schedule Time</span>
             </div>
             <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
               <div class="flex items-center">
@@ -478,7 +370,7 @@
           </div>
         </div>
       </div>
-    </main>
+    </div>
   </div>
 </div>
 
@@ -563,5 +455,8 @@
   // Start gauge updates
   updateGauges();
 </script>
+<!-- Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
