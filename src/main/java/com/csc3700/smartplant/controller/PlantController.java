@@ -15,11 +15,13 @@ import java.util.List;
 @RequestMapping("/plant")
 public class PlantController {
     @Autowired
-    private PlantService service;
+    private PlantService plantService;
 
     // Show dashboard page
     @GetMapping("")
     public String listAllPlant(Model model) {
+        List<Plant> plants = plantService.getAll(); // Or however you retrieve data
+        model.addAttribute("plants", plants);
         model.addAttribute("activePage", "plant");
         return "main/plant"; // Will look for templates/dashboard.html
     }
