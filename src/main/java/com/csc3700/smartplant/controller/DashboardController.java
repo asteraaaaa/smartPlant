@@ -1,5 +1,7 @@
 package com.csc3700.smartplant.controller;
 
+import com.csc3700.smartplant.model.Plant;
+import com.csc3700.smartplant.model.Sensor;
 import com.csc3700.smartplant.repository.PlantRepository;
 import com.csc3700.smartplant.repository.SensorRepository;
 import com.csc3700.smartplant.repository.WateringScheduleRepository;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Controller
 public class DashboardController {
@@ -26,7 +29,17 @@ public class DashboardController {
         this.sensorRepository = sensorRepository;
     }
 
-    // Show dashboard page
+    @GetMapping("/")
+    public String index(Model model) {
+        List<Plant> plants = plantRepository.findAll();
+        List<Sensor> sensors = sensorRepository.findAll();
+        model.addAttribute("plants", plants);
+        model.addAttribute("sensors", sensors);
+        model.addAttribute("activePage", "dashboard");
+        return "main/dashboard";
+    }
+
+    /* Show dashboard page
     @GetMapping("/")
     public String showDashboard(Model model) {
         long totalPlants = plantRepository.count();
@@ -38,6 +51,6 @@ public class DashboardController {
         model.addAttribute("totalPlants", totalPlants);
         model.addAttribute("activePage", "dashboard");
         return "main/dashboard";
-    }
+    }*/
 }
 

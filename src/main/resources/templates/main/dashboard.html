@@ -27,6 +27,227 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
+        .moisture-indicator {
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #ff6b6b 0%, #feca57 50%, #54a0ff 100%);
+        }
+        .moisture-level {
+            height: 100%;
+            border-radius: 4px;
+            background-color: #38b2ac;
+            transition: width 0.5s ease;
+        }
+        .sidebar {
+            background-color: #2d3748;
+            transition: all 0.3s ease;
+        }
+        .sidebar-link {
+            transition: all 0.2s ease;
+        }
+        .sidebar-link:hover {
+            background-color: #4a5568;
+        }
+        .sidebar-link.active {
+            background-color: #38b2ac;
+            color: white;
+        }
+        .status-badge {
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-optimal {
+            background-color: #c6f6d5;
+            color: #22543d;
+        }
+        .status-warning {
+            background-color: #feebc8;
+            color: #7b341e;
+        }
+        .status-critical {
+            background-color: #fed7d7;
+            color: #822727;
+        }
+        .plant-icon {
+            width: 40px;
+            height: 40px;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .accordion-content.active {
+            max-height: 500px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <div class="container py-0">
+        <div class="flex-1 overflow-auto">
+            <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <!-- List View -->
+                <div id="list-view" class="view-content space-y-6">
+                    <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                        <ul class="divide-y divide-gray-200">
+                            <!-- Plant List -->
+                            <li th:each="plant : ${plants}" class="px-4 py-4 sm:px-6">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <svg class="h-10 w-10 text-green-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M12 2L12 9M12 9C10.4097 9 8.88278 9.63214 7.75736 10.7574C6.63214 11.8826 6 13.4087 6 15C6 16.5913 6.63214 18.1174 7.75736 19.2426C8.88278 20.3679 10.4097 21 12 21C13.5903 21 15.1172 20.3679 16.2426 19.2426C17.3679 18.1174 18 16.5913 18 15C18 13.4087 17.3679 11.8826 16.2426 10.7574C15.1172 9.63214 13.5903 9 12 9Z" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M12 9C12 7.4087 11.3679 5.88258 10.2426 4.75736C9.11742 3.63214 7.5913 3 6 3" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M12 9C12 7.4087 12.6321 5.88258 13.7574 4.75736C14.8826 3.63214 16.4087 3 18 3" stroke="#047857" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-indigo-600 truncate" th:text="${plant.name}">Plant Name</div>
+                                            <div class="text-sm text-gray-500" th:text="${plant.type}">Plant Type</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <span class="status-badge status-optimal">Healthy</span>
+                                        <div class="flex space-x-2">
+                                            <button class="text-indigo-600 hover:text-indigo-900">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            </button>
+                                            <button class="text-indigo-600 hover:text-indigo-900">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-900">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2 sm:flex sm:justify-between">
+                                    <div class="sm:flex">
+                                        <div class="flex items-center text-sm text-gray-500 mr-6">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                            </svg>
+                                            <div>Moisture: <span th:text="${plant.minOptimalMoisture + '-' + plant.maxOptimalMoisture + '%'}">0%</span></div>
+                                        </div>
+                                        <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 mr-6">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                                            </svg>
+                                            <div>Humidity: <span th:text="${plant.minOptimalHumidity + '-' + plant.maxOptimalHumidity + '%'}">0%</span></div>
+                                        </div>
+                                        <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                            </svg>
+                                            <div>Temperature: <span th:text="${plant.minOptimalTemperature + '-' + plant.maxOptimalTemperature + '°C'}">0°C</span></div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <span th:if="${plant.lastWatered != null}"
+                                              th:text="'Last watered: ' + ${#temporals.format(plant.lastWatered, 'MMM dd, yyyy')}">
+                                            Last watered: Jun 15, 2023
+                                        </span>
+                                        <span th:if="${plant.lastWatered == null}">
+                                            Never watered
+                                        </span>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Sensor Data Chart -->
+                    <div class="bg-white shadow rounded-lg p-6 mb-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-lg font-medium text-gray-900">Sensor Data Trends</h2>
+                            <div class="flex space-x-2">
+                                <button class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-md text-sm font-medium">24h</button>
+                                <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-sm font-medium">7d</button>
+                                <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-sm font-medium">30d</button>
+                            </div>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="sensorChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4">Recent Sensor Records</h3>
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plant</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Moisture</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Temp</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Humidity</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                            <tr th:each="sensor : ${sensors}">
+                                <td class="px-6 py-4 text-sm text-gray-500"
+                                    th:text="${#dates.format(sensor.recordedAt, 'yyyy-MM-dd HH:mm')}"></td>
+                                <td class="px-6 py-4 text-sm text-gray-700" th:text="${sensor.plant != null ? sensor.plant.name : 'No plant'}"></td>
+                                <td class="px-6 py-4">
+                                    <div class="w-32 moisture-indicator">
+                                        <div class="moisture-level" th:style="'width:' + sensor.soilMoisture + '%'"></div>
+                                    </div>
+                                    <div class="text-xs text-gray-500 mt-1" th:text="${sensor.soilMoisture + '%'}"></div>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-500" th:text="${sensor.temperature + '°C'}"></td>
+                                <td class="px-6 py-4 text-sm text-gray-500" th:text="${sensor.humidity + '%'}"></td>
+                                <td class="px-6 py-4">
+                                    <span th:if="${sensor.soilMoisture >= 60}" class="status-badge status-optimal">Optimal</span>
+                                    <span th:if="${sensor.soilMoisture >= 35 and sensor.soilMoisture < 60}" class="status-badge status-warning">Warning</span>
+                                    <span th:if="${sensor.soilMoisture < 35}" class="status-badge status-critical">Critical</span>
+                               </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+    <!--    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .plant-card {
+            transition: all 0.3s ease;
+        }
+        .plant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
         .stat-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -55,10 +276,10 @@
 <body>
 <div layout:fragment="content">
     <div class="flex h-screen overflow-hidden">
-        <div class = "flex-grow p-6">
+        <div class = "flex-grow p-6"> -->
             <!-- Dashboard Content -->
                 <!-- Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <!-- <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                     <div class="stat-card bg-white rounded-lg shadow p-6 flex items-center">
                         <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
                             <i class="fas fa-seedling text-2xl"></i>
@@ -95,15 +316,14 @@
                             <h3 class="text-2xl font-bold" th:text="${alertCount}">0</h3>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- Plant Status Section -->
-                <div class="mb-12">
+                <!-- <div class="mb-12">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">Plant Status</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Repeatable Plant Card Component -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> -->
                         <!-- Plant Card 1 -->
-                        <div class="plant-card bg-white shadow rounded-lg overflow-hidden" th:each="plant : ${plants}">
+                        <!-- <div class="plant-card bg-white shadow rounded-lg overflow-hidden" th:each="plant : ${plants}">
                             <div class="p-5">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
@@ -161,10 +381,10 @@
                                 <a th:href="@{/plants/{id}(id=${plant.id})}" class="text-sm font-medium text-indigo-600 hover:underline">View Details</a>
                                 <a th:href="@{/plants/water/{id}(id=${plant.id})}" class="text-sm font-medium text-indigo-600 hover:underline">Water Now</a>
                             </div>
-                        </div>
+                        </div> -->
 
                         <!-- Plant Card 2 -->
-                        <div class="plant-card bg-white shadow rounded-lg overflow-hidden">
+                        <!-- <div class="plant-card bg-white shadow rounded-lg overflow-hidden">
                             <div class="p-5">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
@@ -210,10 +430,10 @@
                                     Water Now
                                 </button>
                             </div>
-                        </div>
+                        </div> -->
 
                         <!-- Plant Card 3 -->
-                        <div class="plant-card bg-white shadow rounded-lg overflow-hidden">
+                        <!-- <div class="plant-card bg-white shadow rounded-lg overflow-hidden">
                             <div class="p-5">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
@@ -259,10 +479,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- Sensor Data Chart -->
-                <div class="bg-white shadow rounded-lg p-6 mb-8">
+                <!-- <div class="bg-white shadow rounded-lg p-6 mb-8">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-lg font-medium text-gray-900">Sensor Data Trends</h2>
                         <div class="flex space-x-2">
@@ -274,11 +494,10 @@
                     <div class="h-64">
                         <canvas id="sensorChart"></canvas>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- Recent Activities and Watering Schedule -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Recent Activities -->
+                <!-- <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="bg-white rounded-lg shadow p-6">
                         <h2 class="text-lg font-semibold mb-4">Recent Activities</h2>
                         <div class="space-y-4">
@@ -313,10 +532,10 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- Watering Schedule -->
-                    <div class="bg-white rounded-lg shadow p-6">
+                    <!-- <div class="bg-white rounded-lg shadow p-6">
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="text-lg font-semibold">Watering Schedule</h2>
                             <button class="text-green-600 hover:text-green-800">
@@ -454,9 +673,5 @@
 
     // Start gauge updates
     updateGauges();
-</script>
+</script> -->
 <!-- Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
