@@ -4,11 +4,10 @@
       layout:decorate="~{layout}">
 
 <head>
-  <title>Patient</title>
+  <title>Plants</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
   <!-- Font Awesome CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -224,8 +223,7 @@
           <div class="bg-white shadow overflow-hidden sm:rounded-md">
             <ul class="divide-y divide-gray-200">
               <!-- Plant List Item 1 -->
-              <li>
-                <div class="px-4 py-4 sm:px-6">
+              <li th:each="plant : ${plants}" class="px-4 py-4 sm:px-6">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center">
                       <div class="flex-shrink-0">
@@ -236,8 +234,8 @@
                         </svg>
                       </div>
                       <div class="ml-4">
-                        <div class="text-sm font-medium text-indigo-600 truncate">Monstera Deliciosa</div>
-                        <div class="text-sm text-gray-500">Tropical Plant</div>
+                        <div class="text-sm font-medium text-indigo-600 truncate" th:text="${plant.name}">Plant Name</div>
+                        <div class="text-sm text-gray-500" th:text="${plant.type}">Plant Type</div>
                       </div>
                     </div>
                     <div class="flex items-center space-x-4">
@@ -268,19 +266,19 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                         </svg>
-                        <span>Moisture: 60-70%</span>
+                        <div>Moisture: <span th:text="${plant.minOptimalMoisture + '-' + plant.maxOptimalMoisture + '%'}">60-70%</span></div>
                       </div>
                       <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 mr-6">
                         <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
                         </svg>
-                        <span>Humidity: 50-60%</span>
+                        <div>Humidity: <span th:text="${plant.minOptimalHumidity + '-' + plant.maxOptimalHumidity + '%'}">50-60%</span></div>
                       </div>
                       <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
                         <svg xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
-                        <span>Temperature: 18-27°C</span>
+                        <div>Temperature: <span th:text="${plant.minOptimalTemperature + '-' + plant.maxOptimalTemperature + '°C'}">18-27°C</span></div>
                       </div>
                     </div>
                     <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
@@ -290,7 +288,6 @@
                       <span>Last watered: 2 days ago</span>
                     </div>
                   </div>
-                </div>
               </li>
 
               <!-- Plant List Item 2 -->

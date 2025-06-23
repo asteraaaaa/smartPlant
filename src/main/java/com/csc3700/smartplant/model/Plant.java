@@ -2,6 +2,8 @@ package com.csc3700.smartplant.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "plants")
 public class Plant {
@@ -16,6 +18,7 @@ public class Plant {
     private float minOptimalHumidity;  // Added min humidity
     private float maxOptimalHumidity;  // Added max humidity
     private Integer wateringFrequency;
+    private LocalDate lastWatered;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", columnDefinition = "VARCHAR(255)")
@@ -29,7 +32,7 @@ public class Plant {
                  float minOptimalMoisture, float maxOptimalMoisture,
                  float minOptimalTemperature, float maxOptimalTemperature,
                  float minOptimalHumidity, float maxOptimalHumidity,
-                 Integer wateringFrequency) {
+                 Integer wateringFrequency, LocalDate lastWatered) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -40,6 +43,7 @@ public class Plant {
         this.minOptimalHumidity = minOptimalHumidity;
         this.maxOptimalHumidity = maxOptimalHumidity;
         this.wateringFrequency = wateringFrequency;
+        this.lastWatered = lastWatered;
     }
 
     // Getters and setters
@@ -87,6 +91,14 @@ public class Plant {
         this.wateringFrequency = wateringFrequency;
     }
 
+    public LocalDate getLastWatered() {
+        return lastWatered;
+    }
+
+    public void setLastWatered(LocalDate lastWatered) {
+        this.lastWatered = lastWatered;
+    }
+
     @Override
     public String toString() {
         return "Plant{" +
@@ -100,6 +112,7 @@ public class Plant {
                 ", minOptimalHumidity=" + minOptimalHumidity +
                 ", maxOptimalHumidity=" + maxOptimalHumidity +
                 ", wateringFrequency=" + wateringFrequency +
+                ", lastWatered=" + lastWatered +
                 '}';
     }
 }

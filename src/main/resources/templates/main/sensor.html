@@ -92,7 +92,7 @@
                 <tr th:each="sensor : ${sensors}">
                     <td class="px-6 py-4 text-sm text-gray-500"
                         th:text="${#dates.format(sensor.recordedAt, 'yyyy-MM-dd HH:mm')}"></td>
-                    <td class="px-6 py-4 text-sm text-gray-700" th:text="${sensor.plant.name}"></td>
+                    <td class="px-6 py-4 text-sm text-gray-700" th:text="${sensor.plant != null ? sensor.plant.name : 'No plant'}"></td>
                     <td class="px-6 py-4">
                         <div class="w-32 moisture-indicator">
                             <div class="moisture-level" th:style="'width:' + sensor.soilMoisture + '%'"></div>

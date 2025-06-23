@@ -153,25 +153,25 @@
                     <h2 class="text-2xl font-semibold text-gray-800 mb-4">My Plants</h2>
                     <div class="space-y-4">
                         <div th:each="plant : ${plants}" class="border p-4 rounded-lg flex items-center"
-                             th:classappend="${plant.wateringFrequency != null and T(java.time.LocalDate).now().minusDays(plant.wateringFrequency).isAfter(plant.lastWatered)} ? 'bg-red-50 border-red-300' : 'border-gray-200'">
+                             th:classappend="${plant.wateringFrequency != null and plant.lastWatered != null and T(java.time.LocalDate).now().minusDays(plant.wateringFrequency).isAfter(plant.lastWatered)} ? 'bg-red-50 border-red-300' : 'border-gray-200'">
                             <div class="w-12 h-12 rounded-full bg-emerald-200 flex items-center justify-center mr-4">
                                 <i class="fas fa-leaf text-white text-xl"></i>
                             </div>
                             <div class="flex-grow">
                                 <h3 class="font-medium text-gray-800" th:text="${plant.name}">Plant Name</h3>
                                 <div class="text-sm text-gray-500">
-                                    <span th:if="${plant.wateringFrequency != null and T(java.time.LocalDate).now().minusDays(plant.wateringFrequency).isAfter(plant.lastWatered)}">Needs water now!</span>
-                                    <span th:if="${plant.wateringFrequency != null and not T(java.time.LocalDate).now().minusDays(plant.wateringFrequency).isAfter(plant.lastWatered)}"
+                                    <span th:if="${plant.wateringFrequency != null and plant.lastWatered != null and T(java.time.LocalDate).now().minusDays(plant.wateringFrequency).isAfter(plant.lastWatered)}">Needs water now!</span>
+                                    <span th:if="${plant.wateringFrequency != null and plant.lastWatered != null and not T(java.time.LocalDate).now().minusDays(plant.wateringFrequency).isAfter(plant.lastWatered)}"
                                           th:text="'Water in ' + ${plant.wateringFrequency - T(java.time.temporal.ChronoUnit).DAYS.between(plant.lastWatered, T(java.time.LocalDate).now())} + ' days'">
                                     </span>
                                 </div>
                                 <div class="mt-2">
                                     <div class="text-xs text-gray-500 flex justify-between mb-1">
                                         <span>Moisture</span>
-                                        <span th:text="${plant.optimalMoistureLevel + '%'}">60%</span>
+                                        <span th:text="${plant.minOptimalMoisture + '-' + plant.maxOptimalMoisture + '%'}">60%</span>
                                     </div>
                                     <div class="w-full h-2 bg-gray-200 rounded-full">
-                                        <div class="h-2 bg-emerald-500 rounded-full" th:style="'width: ' + ${plant.optimalMoistureLevel} + '%'"></div>
+                                        <div class="h-2 bg-emerald-500 rounded-full" th:style="'width: ' + ${plant.minOptimalMoisture + '-' + plant.maxOptimalMoisture + '%'}"></div>
                                     </div>
                                 </div>
                             </div>
