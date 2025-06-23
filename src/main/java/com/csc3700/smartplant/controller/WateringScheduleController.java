@@ -32,7 +32,7 @@ public class WateringScheduleController {
         model.addAttribute("plants", plants);
         model.addAttribute("schedules", schedules);
         model.addAttribute("activePage", "schedule");
-        return "main/wateringSchedule";
+        return "main/schedule";
     }
 
     /*@GetMapping

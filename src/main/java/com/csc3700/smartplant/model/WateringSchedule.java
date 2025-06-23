@@ -1,5 +1,6 @@
 package com.csc3700.smartplant.model;
 
+import com.csc3700.smartplant.service.DurationAttributeConverter;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
@@ -23,6 +24,8 @@ public class WateringSchedule {
 
     private LocalDate scheduleDate;
     private Timestamp scheduleTime;
+
+    @Convert(converter = DurationAttributeConverter.class)
     private Duration duration;
 
     public WateringSchedule() {
