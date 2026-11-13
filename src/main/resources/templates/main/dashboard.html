@@ -5,15 +5,10 @@
 
 <head>
     <title>Dashboard</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
-    <!-- Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -93,9 +88,9 @@
 
 <body>
 <div layout:fragment="content">
-    <div class="container py-0">
+    <div class="container py-0" data-autorefresh="30">
         <div class="flex-1 overflow-auto">
-            <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <!-- List View -->
                 <div id="list-view" class="view-content space-y-6">
                     <div class="bg-white shadow overflow-hidden sm:rounded-md">
@@ -112,7 +107,10 @@
                                             </svg>
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-sm font-medium text-indigo-600 truncate" th:text="${plant.name}">Plant Name</div>
+                                            <a th:href="@{/(plantId=${plant.id}, range=${range})}"
+                                               class="text-sm font-medium text-indigo-600 truncate hover:underline"
+                                               th:classappend="${selectedPlant != null and selectedPlant.id == plant.id} ? 'font-bold underline' : ''"
+                                               th:text="${plant.name}">Plant Name</a>
                                             <div class="text-sm text-gray-500" th:text="${plant.type}">Plant Type</div>
                                         </div>
                                     </div>
@@ -120,26 +118,10 @@
                                         <span th:text="${plant.status}"
                                               th:class="'status-badge ' +
                                               (${plant.status} == 'Critical' ? 'status-critical' :
-                                              (${plant.status} == 'Warning' ? 'status-warning' : 'status-optimal'))">
+                                              (${plant.status} == 'Warning' ? 'status-warning' :
+                                              (${plant.status} == 'No data' ? 'bg-gray-200 text-gray-600' : 'status-optimal')))">
                                         </span>
-                                        <div class="flex space-x-2">
-                                            <button class="text-indigo-600 hover:text-indigo-900">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                            </button>
-                                            <button class="text-indigo-600 hover:text-indigo-900">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                                </svg>
-                                            </button>
-                                            <button class="text-red-600 hover:text-red-900">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                            </button>
-                                        </div>
+                                        <a th:href="@{/plant/edit/{id}(id=${plant.id})}" class="text-sm text-indigo-600 hover:text-indigo-900">Edit</a>
                                     </div>
                                 </div>
                                 <div class="mt-2 sm:flex sm:justify-between">
@@ -181,107 +163,71 @@
                     </div>
 
                     <!-- Sensor Data Chart -->
-                    <div class="bg-white shadow rounded-lg p-6 mb-8">
+                    <div class="bg-white shadow rounded-lg p-6 mb-8" th:if="${selectedPlant != null}">
                         <div class="flex items-center justify-between mb-6">
-                            <h2 class="text-lg font-medium text-gray-900">Sensor Data Trends</h2>
+                            <h2 class="text-lg font-medium text-gray-900">
+                                Sensor Data Trends &ndash; <span th:text="${selectedPlant.name}">Plant</span>
+                            </h2>
                             <div class="flex space-x-2">
-                                <button class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-md text-sm font-medium">24h</button>
-                                <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-sm font-medium">7d</button>
-                                <button class="px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-sm font-medium">30d</button>
+                                <a th:each="r : ${T(java.util.List).of('24h','7d','30d')}"
+                                   th:href="@{/(plantId=${selectedPlant.id}, range=${r})}"
+                                   th:text="${r}"
+                                   th:classappend="${r == range} ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-700'"
+                                   class="px-3 py-1 rounded-md text-sm font-medium">24h</a>
                             </div>
                         </div>
-                        <div class="h-64">
+                        <div th:if="${#lists.isEmpty(chartData)}" class="text-center text-gray-500 py-12">
+                            No sensor readings in this period.
+                        </div>
+                        <div class="h-64" th:unless="${#lists.isEmpty(chartData)}">
                             <canvas id="sensorChart"></canvas>
                         </div>
                     </div>
-                    <!-- Load Chart.js -->
-                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <div class="bg-white shadow rounded-lg p-6 mb-8 text-center text-gray-500" th:if="${selectedPlant == null}">
+                        No plants yet. <a th:href="@{/plant/new}" class="text-indigo-600 underline">Add one</a> to get started.
+                    </div>
 
-                    <!-- Thymeleaf JSON Data Injection -->
-                    <script th:inline="javascript">
+                    <script th:if="${selectedPlant != null and !#lists.isEmpty(chartData)}" th:inline="javascript">
                         /*<![CDATA[*/
-                        const sensorData = [[${sensorDataList}]];
-                        const minOptimalMoisture = [[${selectedPlant.minOptimalMoisture}]];
-                        const maxOptimalMoisture = [[${selectedPlant.maxOptimalMoisture}]];
-                        /*]]>*/
-                    </script>
+                        const sensorData = /*[[${chartData}]]*/ [];
+                        const minOptimalMoisture = /*[[${selectedPlant.minOptimalMoisture}]]*/ 0;
+                        const maxOptimalMoisture = /*[[${selectedPlant.maxOptimalMoisture}]]*/ 100;
 
-                    <!-- Chart.js Configuration -->
-                    <script>
-                        const labels = sensorData.map(d => new Date(d.timestamp).toLocaleString());
-                        const temperatureData = sensorData.map(d => d.temperature);
-                        const humidityData = sensorData.map(d => d.humidity);
-                        const moistureData = sensorData.map(d => d.soilMoisture);
+                        const labels = sensorData.map(d => new Date(d.t).toLocaleString());
+                        const line = (label, key, color) => ({
+                            label, data: sensorData.map(d => d[key]),
+                            borderColor: color, fill: false, tension: 0.3
+                        });
+                        const threshold = (label, value, color) => ({
+                            label, data: Array(labels.length).fill(value),
+                            borderColor: color, borderDash: [5, 5], pointRadius: 0, fill: false
+                        });
 
-                        const ctx = document.getElementById('sensorChart').getContext('2d');
-                        new Chart(ctx, {
+                        new Chart(document.getElementById('sensorChart').getContext('2d'), {
                             type: 'line',
                             data: {
                                 labels,
                                 datasets: [
-                                    {
-                                        label: 'Temperature (°C)',
-                                        data: temperatureData,
-                                        borderColor: 'rgba(255, 99, 132, 1)',
-                                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                        fill: false,
-                                        tension: 0.3
-                                    },
-                                    {
-                                        label: 'Humidity (%)',
-                                        data: humidityData,
-                                        borderColor: 'rgba(54, 162, 235, 1)',
-                                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                        fill: false,
-                                        tension: 0.3
-                                    },
-                                    {
-                                        label: 'Soil Moisture (%)',
-                                        data: moistureData,
-                                        borderColor: 'rgba(75, 192, 192, 1)',
-                                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                        fill: false,
-                                        tension: 0.3
-                                    },
-                                    {
-                                        label: 'Min Moisture Threshold',
-                                        data: Array(labels.length).fill(minOptimalMoisture),
-                                        borderColor: 'rgba(255, 206, 86, 1)',
-                                        borderDash: [5, 5],
-                                        pointRadius: 0,
-                                        fill: false
-                                    },
-                                    {
-                                        label: 'Max Moisture Threshold',
-                                        data: Array(labels.length).fill(maxOptimalMoisture),
-                                        borderColor: 'rgba(153, 102, 255, 1)',
-                                        borderDash: [5, 5],
-                                        pointRadius: 0,
-                                        fill: false
-                                    }
+                                    line('Temperature (°C)', 'temperature', 'rgba(255, 99, 132, 1)'),
+                                    line('Humidity (%)', 'humidity', 'rgba(54, 162, 235, 1)'),
+                                    line('Soil Moisture (%)', 'moisture', 'rgba(75, 192, 192, 1)'),
+                                    threshold('Min Moisture Threshold', minOptimalMoisture, 'rgba(255, 206, 86, 1)'),
+                                    threshold('Max Moisture Threshold', maxOptimalMoisture, 'rgba(153, 102, 255, 1)')
                                 ]
                             },
                             options: {
                                 responsive: true,
-                                scales: {
-                                    y: {
-                                        beginAtZero: false
-                                    }
-                                },
+                                maintainAspectRatio: false,
                                 plugins: {
-                                    legend: {
-                                        position: 'bottom'
-                                    },
-                                    tooltip: {
-                                        mode: 'index',
-                                        intersect: false
-                                    }
+                                    legend: { position: 'bottom' },
+                                    tooltip: { mode: 'index', intersect: false }
                                 }
                             }
                         });
+                        /*]]>*/
                     </script>
 
-                    <div class="bg-white p-4 rounded-lg shadow-md">
+                    <div class="bg-white p-4 rounded-lg shadow-md" th:if="${selectedPlant != null}">
                         <h3 class="text-lg font-medium text-gray-800 mb-4">Recent Sensor Records</h3>
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -295,33 +241,33 @@
                             </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                            <tr th:each="sensor : ${sensors}">
+                            <tr th:each="sensor : ${recentSensors}">
                                 <td class="px-6 py-4 text-sm text-gray-500"
                                     th:text="${#dates.format(sensor.recordedAt, 'yyyy-MM-dd HH:mm')}"></td>
-                                <td class="px-6 py-4 text-sm text-gray-700" th:text="${sensor.plant != null ? sensor.plant.name : 'No plant'}"></td>
+                                <td class="px-6 py-4 text-sm text-gray-700" th:text="${selectedPlant.name}"></td>
                                 <td class="px-6 py-4">
                                     <div class="w-32 moisture-indicator">
-                                        <div class="moisture-level" th:style="'width:' + sensor.soilMoisture + '%'"></div>
+                                        <div class="moisture-level" th:style="'width:' + ${sensor.soilMoisture} + '%'"></div>
                                     </div>
                                     <div class="text-xs text-gray-500 mt-1" th:text="${sensor.soilMoisture + '%'}"></div>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-500" th:text="${sensor.temperature + '°C'}"></td>
                                 <td class="px-6 py-4 text-sm text-gray-500" th:text="${sensor.humidity + '%'}"></td>
                                 <td class="px-6 py-4">
-                                    <span th:if="${sensor.soilMoisture >= 60}" class="status-badge status-optimal">Optimal</span>
-                                    <span th:if="${sensor.soilMoisture >= 35 and sensor.soilMoisture < 60}" class="status-badge status-warning">Warning</span>
-                                    <span th:if="${sensor.soilMoisture < 35}" class="status-badge status-critical">Critical</span>
-                               </td>
+                                    <span th:with="st=${recentStatus.get(sensor.id)}" th:text="${st}"
+                                          th:class="'status-badge ' + (${st} == 'Critical' ? 'status-critical' : (${st} == 'Warning' ? 'status-warning' : 'status-optimal'))"></span>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(recentSensors)}">
+                                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No readings yet.</td>
                             </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     </div>
 </div>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

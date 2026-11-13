@@ -1,12 +1,12 @@
 package com.csc3700.smartplant.service;
 
 /**
- * Interface for controlling the water pump on the Arduino via HTTP.
+ * Controls the water pump. Implementations: a mock (default) and an HTTP client for the Arduino.
  */
 public interface PumpClientService {
     /**
-     * Runs the pump for the specified duration in milliseconds.
-     * @param durationMs duration to run the pump (ms)
+     * Runs the pump for the given duration.
+     * @return true if the pump accepted the command, false if it could not be reached
      */
-    void turnOnPump(long durationMs);
+    boolean turnOnPump(long durationMs);
 }

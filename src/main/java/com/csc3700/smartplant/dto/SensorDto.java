@@ -2,11 +2,18 @@ package com.csc3700.smartplant.dto;
 
 import com.csc3700.smartplant.model.Plant;
 import com.csc3700.smartplant.model.Sensor;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 
 public class SensorDto {
+    @NotNull(message = "plantId is required")
     private Long   plantId;
+    @DecimalMin("0") @DecimalMax("100")
     private float  soilMoisture;
+    @DecimalMin("-40") @DecimalMax("80")
     private float  temperature;
+    @DecimalMin("0") @DecimalMax("100")
     private float  humidity;
 
     // Getters & setters

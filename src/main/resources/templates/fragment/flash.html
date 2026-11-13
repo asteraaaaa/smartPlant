@@ -1,0 +1,4 @@
+<div th:fragment="flash">
+    <div th:if="${message}" class="mb-4 rounded-md bg-green-100 text-green-800 px-4 py-3" th:text="${message}"></div>
+    <div th:if="${error}" class="mb-4 rounded-md bg-red-100 text-red-800 px-4 py-3" th:text="${error}"></div>
+</div>

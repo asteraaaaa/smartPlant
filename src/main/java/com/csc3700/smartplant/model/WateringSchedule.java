@@ -18,23 +18,20 @@ public class WateringSchedule {
     @JoinColumn(name = "plant_id")
     private Plant plant;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
     private LocalDate scheduleDate;
     private Timestamp scheduleTime;
 
     @Convert(converter = DurationAttributeConverter.class)
     private Duration duration;
 
+    private boolean completed = false;
+
     public WateringSchedule() {
     }
 
-    public WateringSchedule(Long id, Plant plant, User user, LocalDate scheduleDate, Timestamp scheduleTime, Duration duration) {
+    public WateringSchedule(Long id, Plant plant, LocalDate scheduleDate, Timestamp scheduleTime, Duration duration) {
         this.id = id;
         this.plant = plant;
-        this.user = user;
         this.scheduleDate = scheduleDate;
         this.scheduleTime = scheduleTime;
         this.duration = duration;
@@ -56,14 +53,6 @@ public class WateringSchedule {
         this.plant = plant;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     public LocalDate getScheduleDate() {
         return scheduleDate;
     }
@@ -80,6 +69,14 @@ public class WateringSchedule {
         this.scheduleTime = scheduleTime;
     }
 
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
     public Duration getDuration() {
         return duration;
     }
@@ -93,7 +90,6 @@ public class WateringSchedule {
         return "WateringSchedule{" +
                 "id=" + id +
                 ", plant=" + plant +
-                ", user=" + user +
                 ", scheduleDate=" + scheduleDate +
                 ", scheduleTime=" + scheduleTime +
                 ", duration=" + duration +

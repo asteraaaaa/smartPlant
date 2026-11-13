@@ -1,8 +1,6 @@
 package com.csc3700.smartplant.service;
 
-import com.csc3700.smartplant.model.User;
 import com.csc3700.smartplant.model.WateringSchedule;
-import com.csc3700.smartplant.repository.UserRepository;
 import com.csc3700.smartplant.repository.WateringScheduleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

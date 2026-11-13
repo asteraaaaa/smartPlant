@@ -1,43 +1,24 @@
 package com.csc3700.smartplant.controller;
 
-import com.csc3700.smartplant.model.Plant;
-import com.csc3700.smartplant.model.SystemLog;
-import com.csc3700.smartplant.service.PlantService;
 import com.csc3700.smartplant.service.SystemLogService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/systems")
 public class SystemLogController {
-    @Autowired
-    private SystemLogService service;
+    private final SystemLogService service;
+
+    public SystemLogController(SystemLogService service) {
+        this.service = service;
+    }
 
     @GetMapping("")
     public String listAllSystemLog(Model model) {
+        model.addAttribute("logs", service.getRecent());
         model.addAttribute("activePage", "systems");
-        return "main/systemLogs"; // Will look for templates/dashboard.html
+        return "main/systemLogs";
     }
-
-    /*@GetMapping
-    public List<SystemLog> all() {
-        return service.getAll();
-    }
-
-    @GetMapping("/{id}") public SystemLog one(@PathVariable Long id) {
-        return service.getById(id);
-    }
-
-    @PostMapping
-    public SystemLog save(@RequestBody SystemLog systemLog) {
-        return service.save(systemLog);
-    }
-
-    @DeleteMapping("/{id}") public void delete(@PathVariable Long id) {
-        service.delete(id);
-    }*/
 }

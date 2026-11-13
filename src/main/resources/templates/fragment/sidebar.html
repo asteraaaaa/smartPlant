@@ -1,5 +1,4 @@
-<div th:fragment="sidebar">
-    <nav id="sidebar" class="sidebar d-flex flex-column bg-light border-end">
+    <nav th:fragment="sidebar" id="sidebar" class="sidebar d-flex flex-column bg-light border-end">
         <ul class="nav flex-column pt-3">
 
             <li class="nav-item">
@@ -40,21 +39,11 @@
 
             <li class="nav-item">
                 <a class="nav-link"
-                   th:href="@{/settings}"
-                   th:classappend="${activePage == 'settings'} ? ' active' : ''">
-                    <i class="bi bi-gear-fill mr-3"></i>
-                    <span class="nav-link-text">Settings</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link"
-                   th:href="@{/Systemlogs}"
-                   th:classappend="${activePage == 'Systemlogs'} ? ' active' : ''">
+                   th:href="@{/systems}"
+                   th:classappend="${activePage == 'systems'} ? ' active' : ''">
                     <i class="bi bi-clock-fill mr-3"></i>
                     <span class="nav-link-text">System Logs</span>
                 </a>
             </li>
         </ul>
     </nav>
-</div>

@@ -1,45 +1,19 @@
 <div th:fragment="header">
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <nav class="navbar navbar-light bg-white shadow-sm px-3">
 
-        <!-- Sidebar Toggle Here -->
-        <button class="toggle-btn" id="sidebarToggle" aria-label="Toggle Sidebar">
+        <!-- Sidebar toggle -->
+        <button class="toggle-btn" id="sidebarToggle" type="button" aria-label="Toggle Sidebar">
             <i class="bi bi-list fs-3"></i>
         </button>
 
-        <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center me-auto ms-2" th:href="@{/}">
+            <i class="fas fa-leaf me-2 text-success"></i>
+            <span class="fw-semibold">AgroGuard</span>
+        </a>
 
-            <a class="navbar-brand d-flex align-items-center" href="#">
-                <i class="fas fa-leaf me-2"></i>
-                <span class = font-weight-bold>AgroGuard</span>
-            </a>
-
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
-                    aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarContent">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" aria-label="Search"><i class="fas fa-search"></i></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" aria-label="Notifications"><i class="fas fa-bell"></i></a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="#">Profile</a></li>
-                            <li><a class="dropdown-item" href="#">Settings</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#">Logout</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
+        <span class="small text-muted d-none d-md-inline">
+            <i class="fas fa-circle text-success me-1" style="font-size: .5rem; vertical-align: middle;"></i>
+            Live &middot; <span id="clock"></span>
+        </span>
     </nav>
 </div>

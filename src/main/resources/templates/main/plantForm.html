@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title>Plant</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="max-w-2xl mx-auto py-6 px-4">
+    <h1 class="text-2xl font-semibold text-gray-800 mb-6" th:text="${title}">Add New Plant</h1>
+
+    <div th:replace="~{fragment/flash :: flash}"></div>
+
+    <form th:action="@{/plant/save}" th:object="${plant}" method="post" class="bg-white shadow rounded-lg p-6 space-y-4">
+      <input type="hidden" th:field="*{id}">
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Name</label>
+        <input type="text" th:field="*{name}" required class="mt-1 w-full border rounded-md px-3 py-2">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Type</label>
+        <select th:field="*{type}" required class="mt-1 w-full border rounded-md px-3 py-2">
+          <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="block text-sm font-medium text-gray-700">Min moisture (%)</label>
+          <input type="number" step="0.1" min="0" max="100" th:field="*{minOptimalMoisture}" class="mt-1 w-full border rounded-md px-3 py-2"></div>
+        <div><label class="block text-sm font-medium text-gray-700">Max moisture (%)</label>
+          <input type="number" step="0.1" min="0" max="100" th:field="*{maxOptimalMoisture}" class="mt-1 w-full border rounded-md px-3 py-2"></div>
+        <div><label class="block text-sm font-medium text-gray-700">Min temperature (°C)</label>
+          <input type="number" step="0.1" min="-40" max="80" th:field="*{minOptimalTemperature}" class="mt-1 w-full border rounded-md px-3 py-2"></div>
+        <div><label class="block text-sm font-medium text-gray-700">Max temperature (°C)</label>
+          <input type="number" step="0.1" min="-40" max="80" th:field="*{maxOptimalTemperature}" class="mt-1 w-full border rounded-md px-3 py-2"></div>
+        <div><label class="block text-sm font-medium text-gray-700">Min humidity (%)</label>
+          <input type="number" step="0.1" min="0" max="100" th:field="*{minOptimalHumidity}" class="mt-1 w-full border rounded-md px-3 py-2"></div>
+        <div><label class="block text-sm font-medium text-gray-700">Max humidity (%)</label>
+          <input type="number" step="0.1" min="0" max="100" th:field="*{maxOptimalHumidity}" class="mt-1 w-full border rounded-md px-3 py-2"></div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Watering frequency (days)</label>
+        <input type="number" min="1" th:field="*{wateringFrequency}" class="mt-1 w-full border rounded-md px-3 py-2">
+      </div>
+
+      <div class="flex justify-end space-x-3 pt-2">
+        <a th:href="@{/plant}" class="px-4 py-2 rounded-md bg-gray-100 text-gray-700">Cancel</a>
+        <button type="submit" class="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+</body>
+</html>

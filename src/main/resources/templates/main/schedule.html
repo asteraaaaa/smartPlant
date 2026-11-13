@@ -4,10 +4,8 @@
       layout:decorate="~{layout}">
 <head>
     <title>Watering Schedule</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -15,170 +13,162 @@
             background-color: #f8f9fa;
             color: #333;
         }
-        .plant-card {
-            transition: all 0.3s ease;
-        }
-        .plant-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        .moisture-indicator {
-            height: 8px;
-            border-radius: 4px;
-            background: linear-gradient(90deg, #ff6b6b 0%, #feca57 50%, #54a0ff 100%);
-        }
-        .moisture-level {
-            height: 100%;
-            border-radius: 4px;
-            background-color: #38b2ac;
-            transition: width 0.5s ease;
-        }
-        .status-badge {
-            border-radius: 9999px;
-            padding: 0.25rem 0.75rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .status-optimal {
-            background-color: #c6f6d5;
-            color: #22543d;
-        }
-        .status-warning {
-            background-color: #feebc8;
-            color: #7b341e;
-        }
-        .status-critical {
-            background-color: #fed7d7;
-            color: #822727;
-        }
     </style>
 </head>
 <body>
 
 <div layout:fragment="content">
-    <main class="container mx-auto px-4 py-8">
-        <div class="flex flex-col md:flex-row gap-8">
-            <!-- Calendar column -->
-            <div class="md:w-2/3">
+    <div class="max-w-7xl mx-auto py-2" data-autorefresh="60">
+        <div th:replace="~{fragment/flash :: flash}"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left column: calendar, form, today's list -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- Calendar -->
                 <div class="bg-white rounded-xl shadow-md p-6">
-                    <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-6">Watering Calendar</h2>
-                        <div class="flex space-x-2">
-                            <button class="px-3 py-1 rounded-md bg-gray-100 text-gray-700"
-                                    th:text="${#temporals.format(currentMonth, 'MMMM yyyy')}">June 2025</button>
-                        </div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold text-gray-800">Watering Calendar</h2>
+                        <span class="px-3 py-1 rounded-md bg-gray-100 text-gray-700 text-sm"
+                              th:text="${#temporals.format(currentMonth, 'MMMM yyyy')}">June 2025</span>
                     </div>
-                    <!-- Calendar Legend -->
-                    <div class="flex items-center space-x-4 mb-2">
-                        <div class="flex items-center"><span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>Indoor Plants</div>
-                        <div class="flex items-center"><span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>Outdoor Plants</div>
+                    <div class="flex flex-wrap items-center gap-4 mb-3 text-sm text-gray-600">
+                        <div class="flex items-center"><span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>Other Plants</div>
+                        <div class="flex items-center"><span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>Succulents</div>
                         <div class="flex items-center"><span class="w-3 h-3 bg-orange-500 rounded-full mr-2"></span>Herbs</div>
                     </div>
-                    <div class="grid grid-cols-7 gap-1 mb-2 text-center text-sm font-medium text-gray-500">
-                        <div>Sun</div>
-                        <div>Mon</div>
-                        <div>Tue</div>
-                        <div>Wed</div>
-                        <div>Thu</div>
-                        <div>Fri</div>
-                        <div>Sat</div>
+                    <div class="grid grid-cols-7 gap-2 mb-2 text-center text-sm font-medium text-gray-500">
+                        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
                     </div>
                     <div id="calendar" class="grid grid-cols-7 gap-2 text-sm text-center">
-                        <th:block th:each="i : ${#numbers.sequence(1, firstDayOfMonth)}">
-                            <div class="calendar-day"></div>
+                        <th:block th:if="${blankDays > 0}">
+                            <div th:each="i : ${#numbers.sequence(1, blankDays)}"></div>
                         </th:block>
 
-                        <!-- Calendar days -->
                         <th:block th:each="day : ${#numbers.sequence(1, daysInMonth)}">
                             <div th:with="currentDate=${T(java.time.LocalDate).of(currentMonth.year, currentMonth.month, day)}"
-                                 class="calendar-day hover:bg-gray-100 cursor-pointer"
-                                 th:classappend="${currentDate.equals(T(java.time.LocalDate).now())} ? 'ring-2 ring-green-500' : ''">
-
-                                <div th:text="${day}" class="text-sm"></div>
-
-                                <!-- Indicators for scheduled waterings -->
-                                <th:block th:each="schedule : ${schedules}">
-                                    <th:block th:if="${schedule.scheduleDate != null and schedule.scheduleDate.equals(currentDate)}">
-                                        <div th:switch="${schedule.plant.type}" class="absolute bottom-1 left-1/2 transform -translate-x-1/2">
-                                            <span th:case="INDOOR" class="w-2 h-2 bg-green-500 rounded-full block"></span>
-                                            <span th:case="OUTDOOR" class="w-2 h-2 bg-blue-500 rounded-full block"></span>
-                                            <span th:case="HERB" class="w-2 h-2 bg-orange-500 rounded-full block"></span>
-                                        </div>
+                                 class="relative min-h-[3rem] rounded-md hover:bg-gray-100"
+                                 th:classappend="${currentDate.equals(T(java.time.LocalDate).now())} ? 'ring-2 ring-green-500 bg-green-50' : ''">
+                                <div th:text="${day}" class="pt-1 text-sm"></div>
+                                <div class="absolute bottom-1 left-0 right-0 flex justify-center gap-1">
+                                    <th:block th:each="schedule : ${schedules}">
+                                        <th:block th:if="${schedule.scheduleDate != null and schedule.plant != null and schedule.scheduleDate.equals(currentDate)}">
+                                            <span th:switch="${schedule.plant.type.name()}">
+                                                <span th:case="'HERB'" class="w-2 h-2 bg-orange-500 rounded-full block"
+                                                      th:classappend="${schedule.completed} ? 'opacity-40' : ''"></span>
+                                                <span th:case="'SUCCULENT'" class="w-2 h-2 bg-blue-500 rounded-full block"
+                                                      th:classappend="${schedule.completed} ? 'opacity-40' : ''"></span>
+                                                <span th:case="*" class="w-2 h-2 bg-green-500 rounded-full block"
+                                                      th:classappend="${schedule.completed} ? 'opacity-40' : ''"></span>
+                                            </span>
+                                        </th:block>
                                     </th:block>
-                                </th:block>
+                                </div>
                             </div>
                         </th:block>
                     </div>
-                    </div>
                 </div>
 
-                <!-- Today's Schedule -->
-                <div class="bg-white rounded-xl shadow-md p-6 mt-6">
+                <!-- Add schedule -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Schedule a Watering</h2>
+                    <form th:action="@{/schedule/add}" method="post" class="flex flex-wrap gap-3 items-end">
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1" for="plantId">Plant</label>
+                            <select id="plantId" name="plantId" required class="border rounded-md px-3 py-2 bg-white">
+                                <option th:each="p : ${plants}" th:value="${p.id}" th:text="${p.name}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1" for="when">When</label>
+                            <input id="when" type="datetime-local" name="when" required class="border rounded-md px-3 py-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1" for="minutes">Minutes</label>
+                            <input id="minutes" type="number" name="minutes" value="5" min="1" max="60" class="border rounded-md px-3 py-2 w-24">
+                        </div>
+                        <button type="submit" class="px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700">Add</button>
+                    </form>
+                </div>
+
+                <!-- Today's schedule -->
+                <div class="bg-white rounded-xl shadow-md p-6">
                     <h2 class="text-xl font-semibold text-gray-800 mb-4">Today's Watering Schedule</h2>
-                    <div class="space-y-4">
-                        <div th:each="schedule : ${schedules}"
-                             th:if="${schedule.scheduleDate != null and schedule.scheduleDate.equals(T(java.time.LocalDate).now())}">
-                            <div class="p-4 bg-emerald-50 rounded-lg shadow flex justify-between items-center">
-                                <div>
-                                    <p class="text-gray-800 font-medium" th:text="${schedule.plant.name}">Plant Name</p>
-                                    <p class="text-gray-500 text-sm"
-                                       th:text="${#temporals.format(schedule.scheduleTime.toLocalDateTime(), 'hh:mm a')}">08:00 AM</p>
-                                </div>
-                                <form th:action="@{/schedule/complete/{id}(id=${schedule.id})}" method="post">
-                                    <button type="submit" class="hover:text-green-600 text-gray-400">
+                    <div class="space-y-3">
+                        <div th:each="schedule : ${todaySchedules}"
+                             class="p-4 rounded-lg shadow-sm flex justify-between items-center"
+                             th:classappend="${schedule.completed} ? 'bg-gray-50' : 'bg-emerald-50'">
+                            <div>
+                                <p class="text-gray-800 font-medium" th:text="${schedule.plant != null ? schedule.plant.name : 'Unknown plant'}">Plant Name</p>
+                                <p class="text-gray-500 text-sm"
+                                   th:text="${schedule.scheduleTime != null ? #temporals.format(schedule.scheduleTime.toLocalDateTime(), 'hh:mm a') : ''}">08:00 AM</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span th:if="${schedule.completed}" class="text-green-600 text-sm font-medium">
+                                    <i class="fas fa-check mr-1"></i>Done
+                                </span>
+                                <form th:unless="${schedule.completed}" th:action="@{/schedule/complete/{id}(id=${schedule.id})}" method="post">
+                                    <button type="submit" class="hover:text-green-600 text-gray-400" title="Water now / mark done">
                                         <i class="fas fa-check-circle text-xl"></i>
+                                    </button>
+                                </form>
+                                <form th:action="@{/schedule/delete/{id}(id=${schedule.id})}" method="post"
+                                      onsubmit="return confirm('Delete this schedule?');">
+                                    <button type="submit" class="hover:text-red-600 text-gray-400" title="Delete schedule">
+                                        <i class="fas fa-trash text-lg"></i>
                                     </button>
                                 </form>
                             </div>
                         </div>
-                        <th:block th:if="${todaySchedules != null and todaysSchedules.isEmpty()}">
-                            <div class="text-center text-gray-500 py-4">
-                                <i class="fas fa-calendar-times text-3xl mb-2 text-gray-400"></i>
-                                <p>No watering scheduled for today</p>
-                            </div>
-                        </th:block>
+                        <div th:if="${#lists.isEmpty(todaySchedules)}" class="text-center text-gray-500 py-4">
+                            <i class="fas fa-calendar-times text-3xl mb-2 text-gray-400"></i>
+                            <p>No watering scheduled for today</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Plant List -->
-            <div class="md:w-1/3">
+            <!-- Right column: plants -->
+            <div>
                 <div class="bg-white rounded-xl shadow-md p-6">
                     <h2 class="text-2xl font-semibold text-gray-800 mb-4">My Plants</h2>
                     <div class="space-y-4">
                         <div th:each="plant : ${plants}" class="border p-4 rounded-lg flex items-center"
-                             th:classappend="${plant.wateringFrequency != null and plant.lastWatered != null and T(java.time.LocalDate).now().minusDays(plant.wateringFrequency).isAfter(plant.lastWatered)} ? 'bg-red-50 border-red-300' : 'border-gray-200'">
-                            <div class="w-12 h-12 rounded-full bg-emerald-200 flex items-center justify-center mr-4">
+                             th:with="daysSince=${plant.lastWatered != null ? T(java.time.temporal.ChronoUnit).DAYS.between(plant.lastWatered, T(java.time.LocalDate).now()) : -1},
+                                      daysLeft=${plant.wateringFrequency != null and plant.lastWatered != null ? plant.wateringFrequency - T(java.time.temporal.ChronoUnit).DAYS.between(plant.lastWatered, T(java.time.LocalDate).now()) : 0}"
+                             th:classappend="${plant.wateringFrequency != null and daysSince >= 0 and daysLeft < 0} ? 'bg-red-50 border-red-300' : 'border-gray-200'">
+                            <div class="w-12 h-12 flex-shrink-0 rounded-full bg-emerald-200 flex items-center justify-center mr-4">
                                 <i class="fas fa-leaf text-white text-xl"></i>
                             </div>
                             <div class="flex-grow">
                                 <h3 class="font-medium text-gray-800" th:text="${plant.name}">Plant Name</h3>
                                 <div class="text-sm text-gray-500">
-                                    <span th:if="${plant.wateringFrequency != null and plant.lastWatered != null and T(java.time.LocalDate).now().minusDays(plant.wateringFrequency).isAfter(plant.lastWatered)}">Needs water now!</span>
-                                    <span th:if="${plant.wateringFrequency != null and plant.lastWatered != null and not T(java.time.LocalDate).now().minusDays(plant.wateringFrequency).isAfter(plant.lastWatered)}"
-                                          th:text="'Water in ' + ${plant.wateringFrequency - T(java.time.temporal.ChronoUnit).DAYS.between(plant.lastWatered, T(java.time.LocalDate).now())} + ' days'">
-                                    </span>
+                                    <span th:if="${plant.lastWatered == null}">Never watered</span>
+                                    <span th:if="${plant.lastWatered != null and plant.wateringFrequency != null and daysLeft < 0}"
+                                          class="text-red-600 font-medium">Needs water now!</span>
+                                    <span th:if="${plant.lastWatered != null and plant.wateringFrequency != null and daysLeft == 0}">Water today</span>
+                                    <span th:if="${plant.lastWatered != null and plant.wateringFrequency != null and daysLeft > 0}"
+                                          th:text="'Water in ' + ${daysLeft} + (${daysLeft} == 1 ? ' day' : ' days')"></span>
                                 </div>
                                 <div class="mt-2">
                                     <div class="text-xs text-gray-500 flex justify-between mb-1">
-                                        <span>Moisture</span>
+                                        <span>Optimal moisture</span>
                                         <span th:text="${plant.minOptimalMoisture + '-' + plant.maxOptimalMoisture + '%'}">60%</span>
                                     </div>
-                                    <div class="w-full h-2 bg-gray-200 rounded-full">
-                                        <div class="h-2 bg-emerald-500 rounded-full" th:style="'width: ' + ${plant.minOptimalMoisture + '-' + plant.maxOptimalMoisture + '%'}"></div>
+                                    <div class="relative w-full h-2 bg-gray-200 rounded-full">
+                                        <div class="absolute h-2 bg-emerald-500 rounded-full"
+                                             th:style="'left:' + ${plant.minOptimalMoisture} + '%;width:' + ${plant.maxOptimalMoisture - plant.minOptimalMoisture} + '%'"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <div th:if="${#lists.isEmpty(plants)}" class="text-sm text-gray-500">No plants yet.</div>
                     </div>
                 </div>
             </div>
-    </main>
         </div>
-    </main>
+    </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# local database files (persist profile)
+data/

@@ -10,4 +10,10 @@ public interface SensorRepository extends JpaRepository<Sensor, Long> {
     long countByRecordedAtAfter(Timestamp from);
 
     List<Sensor> findByPlantIdOrderByRecordedAtAsc(Long plantId);
+
+    List<Sensor> findByPlantIdAndRecordedAtAfterOrderByRecordedAtAsc(Long plantId, Timestamp from);
+
+    Sensor findFirstByPlantIdOrderByRecordedAtDesc(Long plantId);
+
+    void deleteByPlantId(Long plantId);
 }

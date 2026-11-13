@@ -16,8 +16,8 @@ public class SensorApiController {
   }
 
   @PostMapping
-  public ResponseEntity<String> ingest(@RequestBody SensorDto dto) {
+  public ResponseEntity<String> ingest(@jakarta.validation.Valid @RequestBody SensorDto dto) {
     sensorService.ingest(dto);
-    return ResponseEntity.ok("Data saved"); // ✅ required!
+    return ResponseEntity.ok("Data saved");
   }
 }

@@ -13,4 +13,6 @@ public interface SensorService {
     void ingest(SensorDto dto);
     String evaluatePlantStatus(Sensor sensor, Plant plant);
     List<Sensor> getRecentSensorDataByPlantId(Long plantId);
+    List<Sensor> getSensorDataSince(Long plantId, java.time.Duration window);
+    Sensor getLatestByPlantId(Long plantId);
 }
