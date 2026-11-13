@@ -14,6 +14,8 @@ produces realistic sensor readings, so you can see the whole system working in a
 Hooking it up to a real Arduino-style pump is a one-line configuration change.
 
 > The UI is branded "AgroGuard" in the page header; the project and code are called SmartPlant.
+> There is also a separate, simpler repository called [AgroGuard](https://github.com/asteraaaaa/agroGuard),
+> built around a real ESP32 (see [Related project](#related-project-agroguard)).
 
 ## Screenshots
 
@@ -47,7 +49,7 @@ You need **JDK 17 or newer** (`JAVA_HOME` must point to it). Maven is included v
 git clone https://github.com/asteraaaaa/smartPlant.git
 cd smartPlant
 ./mvnw spring-boot:run        # macOS / Linux
-mvnw.cmd spring-boot:run      # Windows
+.\mvnw.cmd spring-boot:run    # Windows (PowerShell or cmd)
 ```
 
 Then open <http://localhost:8080>.
@@ -144,6 +146,27 @@ src/test/       integration tests (MockMvc)
 ```
 
 **Tech:** Java 17, Spring Boot 3.5 (Web, Data JPA, Validation, Thymeleaf), H2, Chart.js, Tailwind CSS.
+
+## Related project: AgroGuard
+
+[**AgroGuard**](https://github.com/asteraaaaa/agroGuard) is the simpler version of this project. It was
+built to test live telemetry from a real ESP32 sent to a dashboard as JSON, for the CSC3700 group project,
+and it also supports starting and stopping the pump from the dashboard. The two are separate projects that
+share ideas rather than code.
+
+| | SmartPlant (this repo) | [AgroGuard](https://github.com/asteraaaaa/agroGuard) |
+|---|---|---|
+| Purpose | Complete plant-care application | Live ESP32 telemetry over JSON, with pump control |
+| Plants | Several plant profiles, each with its own ranges | One set of thresholds for the whole server |
+| Extras | Watering calendar and schedules, system logs, plant management | Pump command queue, Start/Stop, several devices, API key |
+| Pump protocol | The server calls the device (`GET <pump url>?duration=`) | The device polls the server for commands |
+| Hardware | Mock pump by default, optional HTTP pump | Built around a real ESP32 |
+
+If you use or build on this work, please credit both repositories. A suggested reference:
+
+> SmartPlant: Spring Boot dashboard for monitoring houseplants and automating watering.
+> https://github.com/asteraaaaa/smartPlant. Related project: AgroGuard,
+> https://github.com/asteraaaaa/agroGuard.
 
 ## Limitations
 
